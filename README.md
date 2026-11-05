@@ -10,7 +10,7 @@ Türkiye'deki büyük kanalların (atv, Show TV, Star TV, Kanal D, NOW, TRT 1, K
 - Takip, beğeni, "izledim" işareti ve bölüm yorumları. Hepsi telefonda saklanır.
 
 ## Kurulum
-- **Hazır APK:** [Releases](../../releases/latest) sayfasından `DiziCambazi.apk` dosyasını telefona indirip aç. Android bilinmeyen kaynaktan yükleme izni isteyecek.
+- **Hazır APK:** [DiziCambazi.apk dosyasını indir](https://github.com/borgatelefondeneme-arch/dizi-cambazi/raw/main/apk/DiziCambazi.apk), sonra telefonda aç. Android bilinmeyen kaynaktan yükleme izni isteyecek.
 - **Kaynaktan:** Projeyi Android Studio'da aç (File → Open) ve çalıştır. Gerekenler: Android SDK 35, JDK 17 ya da üstü.
 
 ## Yapı
