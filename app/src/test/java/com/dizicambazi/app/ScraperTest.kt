@@ -1,8 +1,8 @@
-package com.bolumvakti.app
+package com.dizicambazi.app
 
-import com.bolumvakti.app.data.Scraper
-import com.bolumvakti.app.data.Series
-import com.bolumvakti.app.data.Src
+import com.dizicambazi.app.data.Scraper
+import com.dizicambazi.app.data.Series
+import com.dizicambazi.app.data.Src
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

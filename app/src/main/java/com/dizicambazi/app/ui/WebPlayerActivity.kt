@@ -1,4 +1,4 @@
-package com.bolumvakti.app.ui
+package com.dizicambazi.app.ui
 
 import android.annotation.SuppressLint
 import android.content.Context

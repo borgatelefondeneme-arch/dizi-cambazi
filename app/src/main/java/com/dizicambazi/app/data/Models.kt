@@ -1,4 +1,4 @@
-package com.bolumvakti.app.data
+package com.dizicambazi.app.data
 
 import org.json.JSONArray
 import org.json.JSONObject

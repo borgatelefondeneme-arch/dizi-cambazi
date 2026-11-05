@@ -1,4 +1,4 @@
-package com.bolumvakti.app.ui
+package com.dizicambazi.app.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo

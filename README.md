@@ -1,4 +1,4 @@
-# Bölüm Vakti
+# Dizi Cambazı
 
 Türkiye'deki büyük kanalların (atv, Show TV, Star TV, Kanal D, NOW, TRT 1, Kanal 7) dizilerinin yeni bölümlerini kapak görselleriyle tek ekranda toplayan Android uygulaması.
 
@@ -10,11 +10,11 @@ Türkiye'deki büyük kanalların (atv, Show TV, Star TV, Kanal D, NOW, TRT 1, K
 - Takip, beğeni, "izledim" işareti ve bölüm yorumları. Hepsi telefonda saklanır.
 
 ## Kurulum
-- **Hazır APK:** [Releases](../../releases/latest) sayfasından `BolumVakti.apk` dosyasını telefona indirip aç. Android bilinmeyen kaynaktan yükleme izni isteyecek.
+- **Hazır APK:** [Releases](../../releases/latest) sayfasından `DiziCambazi.apk` dosyasını telefona indirip aç. Android bilinmeyen kaynaktan yükleme izni isteyecek.
 - **Kaynaktan:** Projeyi Android Studio'da aç (File → Open) ve çalıştır. Gerekenler: Android SDK 35, JDK 17 ya da üstü.
 
 ## Yapı
-- `app/src/main/java/com/bolumvakti/app/data/Scraper.kt`: Kanal sitelerinden ve YouTube'dan bölümleri okur.
+- `app/src/main/java/com/dizicambazi/app/data/Scraper.kt`: Kanal sitelerinden ve YouTube'dan bölümleri okur.
 - `data/Repo.kt`: Yerel kayıt, yenileme ve bildirim listesi.
 - `work/RefreshWorker.kt`: Arka planda kontrol ve bildirim.
 - `ui/`: Compose ekranları, uygulama içi YouTube oynatıcı (`YouTubePlayer.kt`) ve site oynatıcı (`WebPlayerActivity.kt`).

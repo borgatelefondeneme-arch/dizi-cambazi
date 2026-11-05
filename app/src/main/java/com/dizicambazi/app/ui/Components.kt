@@ -1,4 +1,4 @@
-package com.bolumvakti.app.ui
+package com.dizicambazi.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,9 +24,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.bolumvakti.app.data.Episode
-import com.bolumvakti.app.data.Repo
-import com.bolumvakti.app.data.Series
+import com.dizicambazi.app.data.Episode
+import com.dizicambazi.app.data.Repo
+import com.dizicambazi.app.data.Series
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle as JTextStyle

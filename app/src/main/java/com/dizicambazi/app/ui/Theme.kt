@@ -1,4 +1,4 @@
-package com.bolumvakti.app.ui
+package com.dizicambazi.app.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -31,7 +31,7 @@ object T {
 }
 
 @Composable
-fun BvTheme(content: @Composable () -> Unit) {
+fun DcTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = darkColorScheme(primary = C.coral, background = C.bg, surface = C.surface,
         onSurface = C.ink, onBackground = C.ink, surfaceVariant = C.surface2, secondary = C.amber), content = content)
 }

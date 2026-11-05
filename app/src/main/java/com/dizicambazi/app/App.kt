@@ -1,4 +1,4 @@
-package com.bolumvakti.app
+package com.dizicambazi.app
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -8,8 +8,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.bolumvakti.app.data.Repo
-import com.bolumvakti.app.work.RefreshWorker
+import com.dizicambazi.app.data.Repo
+import com.dizicambazi.app.work.RefreshWorker
 import java.util.concurrent.TimeUnit
 
 class App : Application() {

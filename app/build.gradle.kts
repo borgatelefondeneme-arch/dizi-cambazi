@@ -5,10 +5,10 @@ plugins {
 }
 
 android {
-    namespace = "com.bolumvakti.app"
+    namespace = "com.dizicambazi.app"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.bolumvakti.app"
+        applicationId = "com.dizicambazi.app"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

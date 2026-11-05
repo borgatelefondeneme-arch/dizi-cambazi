@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:usesCleartextTraffic="false"
-        android:theme="@style/Theme.BolumVakti">
+        android:theme="@style/Theme.DiziCambazi">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -28,6 +28,6 @@
             android:name=".ui.WebPlayerActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
-            android:theme="@style/Theme.BolumVakti" />
+            android:theme="@style/Theme.DiziCambazi" />
     </application>
 </manifest>

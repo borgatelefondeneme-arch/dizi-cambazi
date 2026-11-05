@@ -1,4 +1,4 @@
-package com.bolumvakti.app.data
+package com.dizicambazi.app.data
 
 import okhttp3.OkHttpClient
 import okhttp3.Request

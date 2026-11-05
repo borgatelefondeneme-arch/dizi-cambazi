@@ -1,4 +1,4 @@
-package com.bolumvakti.app.ui
+package com.dizicambazi.app.ui
 
 import android.Manifest
 import android.content.Context
@@ -38,10 +38,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bolumvakti.app.data.Episode
-import com.bolumvakti.app.data.Repo
-import com.bolumvakti.app.data.Scraper
-import com.bolumvakti.app.work.RefreshWorker
+import com.dizicambazi.app.data.Episode
+import com.dizicambazi.app.data.Repo
+import com.dizicambazi.app.data.Scraper
+import com.dizicambazi.app.work.RefreshWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Repo.init(applicationContext)
         deepLink.value = intent.getStringExtra("episode")
-        setContent { BvTheme { AppRoot(deepLink) } }
+        setContent { DcTheme { AppRoot(deepLink) } }
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent); deepLink.value = intent.getStringExtra("episode")
@@ -141,7 +141,7 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
             item { Header(unread, push) }
             when (tab) {
                 "home" -> {
-                    val sorted = series.sortedWith(compareByDescending<com.bolumvakti.app.data.Series> { it.key in follows }
+                    val sorted = series.sortedWith(compareByDescending<com.dizicambazi.app.data.Series> { it.key in follows }
                         .thenByDescending { Repo.episodesOf(it.key).firstOrNull { e -> e.online }?.airDate ?: "" })
                     item {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -277,7 +277,7 @@ fun Header(unread: Int, push: (Route) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(when { h < 6 -> "İyi geceler"; h < 12 -> "Günaydın"; h < 18 -> "İyi günler"; else -> "İyi akşamlar" }, style = T.meta)
-            Row { Text("Bölüm ", style = T.brand, color = C.ink); Text("Vakti", style = T.brand, color = C.coral) }
+            Row { Text("Dizi ", style = T.brand, color = C.ink); Text("Cambazı", style = T.brand, color = C.coral) }
         }
         HeadBtn(Icons.Filled.Search, "Dizi ara") { push(Route.Search) }
         Spacer(Modifier.width(8.dp))

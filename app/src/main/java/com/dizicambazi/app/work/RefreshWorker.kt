@@ -1,4 +1,4 @@
-package com.bolumvakti.app.work
+package com.dizicambazi.app.work
 
 import android.Manifest
 import android.app.PendingIntent
@@ -10,11 +10,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.bolumvakti.app.App
-import com.bolumvakti.app.R
-import com.bolumvakti.app.data.Episode
-import com.bolumvakti.app.data.Repo
-import com.bolumvakti.app.ui.MainActivity
+import com.dizicambazi.app.App
+import com.dizicambazi.app.R
+import com.dizicambazi.app.data.Episode
+import com.dizicambazi.app.data.Repo
+import com.dizicambazi.app.ui.MainActivity
 
 class RefreshWorker(ctx: Context, p: WorkerParameters) : CoroutineWorker(ctx, p) {
     override suspend fun doWork(): Result {
