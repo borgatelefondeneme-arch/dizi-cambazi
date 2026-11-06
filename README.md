@@ -29,6 +29,9 @@ Bu sürüm yerleşik bir dizi listesiyle gelir; takip/beğeni/izledim seçimleri
 - `ui/`: Compose ekranları, uygulama içi YouTube oynatıcı (`YouTubePlayer.kt`) ve site oynatıcı (`WebPlayerActivity.kt`).
 - `app/src/main/assets/seed.json`: İlk açılışta gösterilen başlangıç listesi.
 
+## Otomatik güncelleme
+`.github/workflows/refresh.yml`, her gün `tools/refresh_catalog.py` betiğini çalıştırır: kanal siteleri ve resmi YouTube kanallarından güncel bölümleri çekip `app/src/main/assets/seed.json` ve `docs/index.html` dosyalarını tazeler, değişiklik varsa otomatik commit'ler. Böylece web sürümü de kendiliğinden güncel kalır. (Actions sekmesinden elle de çalıştırılabilir.)
+
 ## Gizlilik ve yasal
 Uygulama hiçbir kişisel veri toplamaz; her şey telefonda saklanır. Bölüm dosyası barındırmaz, yalnızca kanalların kendi sitelerindeki ve resmi YouTube kanallarındaki yayınlara bağlantı verir. Tüm hakları ilgili kanallara aittir.
 

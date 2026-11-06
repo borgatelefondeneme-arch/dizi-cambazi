@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#150A20">
+<title>Dizi Cambazı</title>
+</head>
+<body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Dizi Cambazı</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Onest:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app shell — greeting header, story bubbles, tonight carousel, feeds; fixed bottom tab bar; bottom sheets for detail */
+:root{
+  --bg:#FFF3EE; --glow1:rgba(255,77,94,.20); --glow2:rgba(255,176,32,.22);
+  --surface:#FFFFFF; --surface-2:#F6E9F0; --ink:#25112F; --muted:#6F5E7A; --line:#EBD9E2;
+  --coral:#F0364C; --amber:#E89400; --plum:#6B2FA0; --on-coral:#FFFFFF;
+  --grad:linear-gradient(135deg,#FF4D5E 0%,#FF8A3D 55%,#FFB020 100%);
+  --ring:conic-gradient(from 210deg,#FF4D5E,#FFB020,#B44CFF,#FF4D5E);
+  --scrim:linear-gradient(180deg,rgba(20,6,30,0) 35%,rgba(20,6,30,.88) 100%);
+  --shade:rgba(20,8,30,.55); --tab:rgba(255,255,255,.86);
+  --heart:#E8265E; --ok:#14946B;
+  --c-atv:#E89400; --c-show:#F0364C; --c-star:#C99A00; --c-kd:#0E9F95; --c-now:#7B3FD0; --c-trt:#2B6FE0; --c-k7:#2F9E44;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Onest","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#150A20; --glow1:rgba(255,77,94,.26); --glow2:rgba(180,76,255,.22);
+  --surface:#21142F; --surface-2:#2E1E40; --ink:#FBF0FF; --muted:#B9A6CB; --line:#3A2950;
+  --coral:#FF5C6E; --amber:#FFC247; --plum:#C08BFF; --on-coral:#FFFFFF;
+  --shade:rgba(0,0,0,.6); --tab:rgba(28,17,40,.86); --heart:#FF6E95; --ok:#4BD6A4;
+  --c-atv:#FFB84D; --c-show:#FF6B7B; --c-star:#F2CB4C; --c-kd:#3FD3C6; --c-now:#B287FF; --c-trt:#6FA3FF; --c-k7:#66CF7A;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#150A20; --glow1:rgba(255,77,94,.26); --glow2:rgba(180,76,255,.22);
+  --surface:#21142F; --surface-2:#2E1E40; --ink:#FBF0FF; --muted:#B9A6CB; --line:#3A2950;
+  --coral:#FF5C6E; --amber:#FFC247; --plum:#C08BFF; --on-coral:#FFFFFF;
+  --shade:rgba(0,0,0,.6); --tab:rgba(28,17,40,.86); --heart:#FF6E95; --ok:#4BD6A4;
+  --c-atv:#FFB84D; --c-show:#FF6B7B; --c-star:#F2CB4C; --c-kd:#3FD3C6; --c-now:#B287FF; --c-trt:#6FA3FF; --c-k7:#66CF7A;
+  color-scheme:dark }
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(60% 40% at 10% 0%,var(--glow1),transparent 70%),radial-gradient(55% 35% at 95% 8%,var(--glow2),transparent 70%)}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--coral);outline-offset:2px;border-radius:10px}
+.wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px calc(96px + env(safe-area-inset-bottom,0px))}
+
+/* header */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-block:6px 4px}
+.hi{font-size:14px;color:var(--muted);font-weight:500}
+.brand{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.03em;line-height:1.02;margin:2px 0 0}
+.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.datebox{background:var(--surface);border-radius:14px;padding:6px 12px;text-align:center;box-shadow:0 6px 18px -10px rgba(120,30,60,.35)}
+.datebox b{display:block;font-family:var(--display);font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.datebox small{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--coral)}
+
+.sec{margin-top:26px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.sec-h h2{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;margin:0;display:flex;align-items:center;gap:8px}
+.sec-h .more{border:0;background:none;color:var(--coral);font-weight:600;font-size:14px;padding:4px 0}
+.sub{color:var(--muted);font-size:13px;margin:-8px 0 12px}
+
+/* stories */
+.stories{display:flex;gap:14px;overflow-x:auto;padding:14px 2px 6px;margin-inline:-2px;scrollbar-width:none;scroll-snap-type:x proximity}
+.stories::-webkit-scrollbar,.rail::-webkit-scrollbar,.days::-webkit-scrollbar,.chips::-webkit-scrollbar{display:none}
+.story{border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:72px;flex:none;scroll-snap-align:start}
+.story .av{width:68px;height:68px;border-radius:50%;padding:3px;background:var(--line);position:relative}
+.story.fresh .av{background:var(--ring)}
+.story .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--bg);display:block}
+.story .av .fl{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#fff;display:grid;place-items:center;border:2px solid var(--bg)}
+.story span{font-size:11.5px;font-weight:600;line-height:1.2;text-align:center;max-width:72px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* tonight rail */
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}
+.tcard{flex:none;width:min(78vw,330px);scroll-snap-align:start;border-radius:var(--r);overflow:hidden;position:relative;aspect-ratio:16/11;max-width:100%;background:var(--surface-2);color:#fff;text-decoration:none;display:block;box-shadow:0 14px 30px -18px rgba(90,10,40,.6)}
+.tcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tcard::after{content:"";position:absolute;inset:0;background:var(--scrim)}
+.tcard .tc{position:absolute;left:14px;right:14px;bottom:12px;z-index:1;display:flex;flex-direction:column;gap:6px}
+.tcard h3{font-family:var(--display);font-size:22px;font-weight:800;margin:0;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}
+.tcard .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:500}
+.live{display:inline-flex;align-items:center;gap:6px;background:var(--coral);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:999px;position:absolute;top:12px;left:12px;z-index:1}
+.live i{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
+.soon{background:rgba(255,255,255,.92);color:#25112F}
+.soon i{background:var(--coral)}
+@keyframes blink{50%{opacity:.25}}
+.ghost{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;color:#fff}
+
+/* channel tag */
+.ch{display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:12.5px;white-space:nowrap}
+.ch::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cc,var(--muted))}
+
+/* big episode cards */
+.feed{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:640px){.feed{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 10px 28px -20px rgba(90,10,40,.55);transition:transform .15s}
+.card:active{transform:scale(.985)}
+.thumb{position:relative;display:block;aspect-ratio:16/9;max-width:100%;background:var(--surface-2);border:0;padding:0;width:100%}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .dur{position:absolute;right:10px;bottom:10px;background:var(--shade);color:#fff;font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;font-variant-numeric:tabular-nums}
+.badge{position:absolute;left:10px;top:10px;font-size:11px;font-weight:700;letter-spacing:.07em;padding:4px 9px;border-radius:8px;color:#fff;background:var(--coral);display:flex;gap:4px;align-items:center}
+.badge.seen{background:var(--shade);letter-spacing:0;font-weight:600}
+.badge.wait{background:var(--shade);letter-spacing:0;font-weight:600}
+.thumb.watched img{filter:saturate(.3) brightness(.8)}
+.thumb.pending img{filter:grayscale(.6) brightness(.7)}
+.thumb .play{position:absolute;inset:0;margin:auto;width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.55)}
+.cbody{padding:12px 14px 4px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.sname{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.015em;line-height:1.12;margin:0;text-wrap:balance}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.meta .ep{color:var(--ink);font-weight:700}
+.acts{display:flex;align-items:center;gap:4px;padding:8px 8px 12px 14px}
+.watch{display:inline-flex;align-items:center;gap:7px;background:var(--grad);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:9px 16px;border-radius:999px;margin-right:auto;border:0;box-shadow:0 8px 18px -10px rgba(240,54,76,.9)}
+.watch.off{background:var(--surface-2);color:var(--muted);box-shadow:none}
+.ib{border:0;background:transparent;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--muted);position:relative;flex:none}
+.ib:hover{background:var(--surface-2)}
+.ib.like[aria-pressed="true"]{color:var(--heart)}
+.ib.fol[aria-pressed="true"]{color:var(--coral)}
+.ib .c{position:absolute;top:3px;right:1px;font-size:10px;font-weight:700;background:var(--ink);color:var(--bg);border-radius:999px;padding:0 5px;font-variant-numeric:tabular-nums}
+.pop{animation:pop .35s ease}
+@keyframes pop{40%{transform:scale(1.35)}}
+svg{display:block}
+
+/* compact rows */
+.list{display:flex;flex-direction:column;gap:10px}
+.rowc{display:flex;gap:12px;align-items:stretch;background:var(--surface);border-radius:16px;padding:8px;min-width:0;box-shadow:0 8px 22px -20px rgba(90,10,40,.6)}
+.rowc .thumb{width:44%;max-width:190px;flex:none;border-radius:11px;overflow:hidden}
+.rowc .thumb .play{width:38px;height:38px}
+.rowc .rb{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;padding:2px 2px 2px 0}
+.rowc .sname{font-size:16.5px}
+.rowc .acts{padding:4px 0 0;margin-top:auto}
+.rowc .watch{padding:6px 12px;font-size:13px}
+.rowc .ib{width:34px;height:34px}
+
+/* progress card */
+.prog{background:var(--grad);color:#fff;border-radius:var(--r);padding:16px 18px;display:flex;align-items:center;gap:16px;box-shadow:0 16px 32px -18px rgba(240,54,76,.8)}
+.prog .ringw{width:62px;height:62px;flex:none;position:relative}
+.prog .ringw b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:18px}
+.prog h3{font-family:var(--display);font-size:19px;margin:0 0 2px;line-height:1.15}
+.prog p{margin:0;font-size:13.5px;opacity:.92}
+.prog button{margin-top:8px;border:0;background:#fff;color:#C2243A;font-weight:700;font-size:13px;padding:7px 14px;border-radius:999px}
+
+/* days strip */
+.days{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.day{flex:none;border:0;background:var(--surface);border-radius:16px;width:62px;padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 6px 16px -14px rgba(90,10,40,.6)}
+.day small{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.day b{font-family:var(--display);font-size:22px;line-height:1.1;font-variant-numeric:tabular-nums}
+.day em{font-style:normal;font-size:11px;font-weight:600;color:var(--coral)}
+.day[aria-pressed="true"]{background:var(--grad);color:#fff}
+.day[aria-pressed="true"] small,.day[aria-pressed="true"] em{color:#fff}
+.day:disabled{opacity:.45;cursor:default}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.chip{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{border-color:transparent;background:var(--ink);color:var(--bg)}
+
+/* series grid */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.poster{position:relative;border:0;padding:0;border-radius:var(--r);overflow:hidden;aspect-ratio:3/4;max-width:100%;background:var(--surface-2);color:#fff;text-align:left;display:block;width:100%;box-shadow:0 12px 26px -18px rgba(90,10,40,.65)}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.poster::after{content:"";position:absolute;inset:0;background:var(--scrim)}
+.poster .pc{position:absolute;left:12px;right:12px;bottom:12px;z-index:1;display:flex;flex-direction:column;gap:4px}
+.poster h3{font-family:var(--display);font-size:18px;font-weight:800;margin:0;line-height:1.08;letter-spacing:-.01em;text-wrap:balance}
+.poster .pm{font-size:12px;opacity:.9;font-weight:500}
+.poster .ch{color:#fff}
+.poster .tags{position:absolute;top:10px;left:10px;right:10px;z-index:1;display:flex;justify-content:space-between;gap:6px}
+.poster .tg{background:var(--shade);border-radius:999px;width:30px;height:30px;display:grid;place-items:center;color:#fff}
+.poster .tg.on{background:#fff;color:var(--heart)}
+.poster .new{background:var(--coral);font-size:11px;font-weight:700;letter-spacing:.06em;border-radius:8px;padding:4px 8px}
+
+.empty{background:var(--surface);border-radius:var(--r);padding:28px 20px;text-align:center;color:var(--muted)}
+.empty h3{font-family:var(--display);color:var(--ink);font-size:20px;margin:0 0 6px}
+.btn{border:0;background:var(--grad);color:#fff;font-weight:700;padding:10px 18px;border-radius:999px;margin-top:12px}
+.foot{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;line-height:1.5}
+.skel{background:var(--surface);border-radius:var(--r);height:260px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+
+.hbtns{display:flex;gap:8px;align-items:center}
+.hb{width:44px;height:44px;border-radius:14px;border:0;background:var(--surface);display:grid;place-items:center;position:relative;box-shadow:0 6px 18px -10px rgba(120,30,60,.35)}
+.hb .n{position:absolute;top:-4px;right:-4px;background:var(--coral);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 6px;font-variant-numeric:tabular-nums;border:2px solid var(--bg)}
+.sbox{display:flex;gap:8px;align-items:center;background:var(--surface-2);border-radius:16px;padding:4px 6px 4px 14px}
+.sbox input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;padding:10px 0;outline:none}
+.sres{display:flex;flex-direction:column;gap:8px}
+.reqs{display:flex;flex-direction:column;gap:6px}
+.req{display:flex;justify-content:space-between;gap:10px;background:var(--surface-2);border-radius:12px;padding:9px 12px;font-size:14px}
+.req em{font-style:normal;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;align-self:center}
+.req .st-new{background:var(--amber);color:#2a1600}.req .st-done{background:var(--ok);color:#fff}.req .st-notfound{background:var(--line);color:var(--ink)}
+.addcard{border:2px dashed var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.addcard b{font-family:var(--display);font-size:17px}
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--tab);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar nav{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tb{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted);position:relative}
+.tb svg{width:24px;height:24px}
+.tb[aria-current="page"]{color:var(--coral)}
+.tb .n{position:absolute;top:2px;left:calc(50% + 6px);background:var(--coral);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:0 5px;min-width:16px;text-align:center;font-variant-numeric:tabular-nums}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,4,16,.55);z-index:20;opacity:0;transition:opacity .2s}
+.scrim.on{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:24px 24px 0 0;max-height:94%;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+.sheet.on{transform:none}
+@media (min-width:720px){.sheet{left:50%;right:auto;width:660px;margin-left:-330px}}
+.hero{position:relative;aspect-ratio:16/9;max-width:100%;background:var(--surface-2)}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 30%)}
+.close{position:absolute;top:12px;right:max(12px,env(safe-area-inset-right,0px));z-index:2;background:var(--shade);color:#fff;width:38px;height:38px;border-radius:50%;border:0;display:grid;place-items:center}
+.in{padding:16px max(18px,env(safe-area-inset-right,0px)) 0 max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+.in h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.025em;line-height:1.05;margin:0}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.big{font-size:16px;padding:12px 20px;margin-right:0}
+.pill{font-size:13px;font-weight:600;border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;background:transparent;display:inline-flex;align-items:center;gap:6px}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill.like[aria-pressed="true"]{background:var(--heart);border-color:var(--heart);color:#fff}
+.desc{color:var(--muted);font-size:14px;margin:0}
+.note{font-size:12.5px;color:var(--muted)}
+.eprow{display:flex;gap:10px;align-items:center;border:0;background:var(--surface-2);border-radius:14px;padding:6px;text-align:left;width:100%}
+.eprow img{width:96px;aspect-ratio:16/9;max-width:100%;object-fit:cover;border-radius:9px;flex:none}
+.eprow b{display:block;font-size:14px}
+.eprow span{font-size:12.5px;color:var(--muted)}
+.cm h3{font-family:var(--display);font-size:18px;margin:6px 0 8px;display:flex;gap:8px;align-items:baseline}
+.cm h3 span{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:500}
+.clist{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.cmt{background:var(--surface-2);border-radius:14px;padding:10px 12px;min-width:0}
+.cmt .who{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.cmt .who b{color:var(--ink);font-weight:700}
+.cmt p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.del{border:0;background:none;color:var(--muted);font-size:12px;padding:0;text-decoration:underline}
+textarea{width:100%;min-height:84px;resize:vertical;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:10px 12px;font:inherit}
+.send{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px}
+.send .btn{margin-top:0}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:30;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="glow" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="hdr">
+    <div><div class="hi" id="hi">Merhaba</div><h1 class="brand">Dizi <span>Cambazı</span></h1></div>
+    <div class="hbtns"><button class="hb" data-open-search aria-label="Dizi ara"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="hb" data-open-notif aria-label="Bildirimler"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><span class="n" id="n-notif" hidden></span></button><div class="datebox" id="datebox"></div></div>
+  </header>
+  <main id="main"><div class="sec"><div class="skel"></div></div><div class="sec"><div class="skel"></div></div></main>
+  <p class="foot" id="foot"></p>
+</div>
+
+<div class="tabbar"><nav aria-label="Bölümler">
+  <button class="tb" data-v="home" id="tb-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Ana sayfa</button>
+  <button class="tb" data-v="week" id="tb-week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Bu hafta<span class="n" id="n-week" hidden></span></button>
+  <button class="tb" data-v="follow" id="tb-follow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>Takip<span class="n" id="n-follow" hidden></span></button>
+  <button class="tb" data-v="likes" id="tb-likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>Beğeniler</button>
+  <button class="tb" data-v="all" id="tb-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>Diziler</button>
+</nav></div>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title" hidden></section>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>window.__DATA__=__DIZI_CAMBAZI_DATA__;</script>
+<script>
+const I={
+  play:(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>`,
+  heart:on=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="${on?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>`,
+  bell:on=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="${on?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0" fill="none"/></svg>`,
+  chat:'<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  clock:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  ext:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  plus:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
+};
+const $=(s,el=document)=>el.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY=86400000, DN=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'], DS=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+const CC={'atv':'--c-atv','Show TV':'--c-show','Star TV':'--c-star','Kanal D':'--c-kd','NOW':'--c-now','TRT 1':'--c-trt','Kanal 7':'--c-k7'};
+const chTag=c=>`<span class="ch" style="--cc:var(${CC[c]||'--muted'})">${esc(c)}</span>`;
+
+const S={view:'home',channel:'Tümü',mine:true,day:null,series:[],episodes:[],tonight:[],requests:[],q:'',comments:[],meta:null,
+  me:{follows:{},likes:{},watched:{},lastSeen:''},loaded:false,dbOk:null,uid:null,db:null,user:null,open:null,names:{}};
+try{const v=localStorage.getItem('bv2-view'); if(v) S.view=v; if(localStorage.getItem('bv2-mine')==='0') S.mine=false; const m=JSON.parse(localStorage.getItem('bv2-me')||'null'); if(m) S.me=Object.assign({follows:{},likes:{},watched:{}},m);}catch(e){}
+
+const today0=()=>{const d=new Date(); d.setHours(0,0,0,0); return d;};
+const pd=s=>{const [y,m,d]=String(s).split('-').map(Number); return new Date(y,(m||1)-1,d||1);};
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const daysAgo=s=>Math.round((today0()-pd(s))/DAY);
+function rel(s){const n=daysAgo(s); if(n<=0) return 'Bugün'; if(n===1) return 'Dün'; if(n<7) return DN[pd(s).getDay()]; return pd(s).toLocaleDateString('tr-TR',{day:'numeric',month:'long'});}
+const online=e=>e.status!=='pending';
+const isFresh=e=>online(e)&&daysAgo(e.airDate)<=3&&!S.me.watched[e.id];
+const sBy=k=>S.series.find(s=>s.key===k)||{};
+const epsOf=k=>S.episodes.filter(e=>e.series===k).sort((a,b)=>b.num-a.num);
+const cCount=id=>S.comments.filter(c=>c.ep===id).length;
+const thumbOf=k=>{const e=epsOf(k).find(online)||epsOf(k)[0]; return e?e.thumb:'';};
+const chF=l=>S.channel==='Tümü'?l:l.filter(x=>x.channel===S.channel);
+const weekEps=()=>S.episodes.filter(e=>daysAgo(e.airDate)>=0&&daysAgo(e.airDate)<7);
+const hasFollows=()=>Object.keys(S.me.follows).length>0;
+const mineOn=()=>S.mine&&hasFollows();
+const mE=l=>mineOn()?l.filter(e=>S.me.follows[e.series]):l;
+const mS=l=>mineOn()?l.filter(s=>S.me.follows[s.key]):l;
+const mineToggle=()=>hasFollows()?`<div class="chips" style="padding-top:4px"><button class="chip" data-mine="1" aria-pressed="${S.mine}">Takip ettiklerim</button><button class="chip" data-mine="0" aria-pressed="${!S.mine}">Tüm kanallar</button></div>`:'';
+const discoverCard=()=>`<section class="sec"><div class="prog" style="background:var(--grad)"><div><h3>İzlediğin dizileri seç</h3><p>Takip ettiğin diziler burada toplanır, yeni bölümleri düşünce öne çıkar. Şu an hiç dizi takip etmiyorsun.</p><button data-v="all">Dizilere göz at</button></div></div></section>`;
+
+/* header */
+(function(){const d=new Date(), h=d.getHours();
+  $('#hi').textContent=h<6?'İyi geceler':h<12?'Günaydın':h<18?'İyi günler':'İyi akşamlar';
+  $('#datebox').innerHTML=`<small>${DS[d.getDay()]}</small><b>${d.getDate()}</b>`;})();
+
+/* ---------- pieces ---------- */
+function epCard(e){
+  const f=!!S.me.follows[e.series],l=!!S.me.likes[e.series],w=!!S.me.watched[e.id],n=cCount(e.id),src=(e.sources||[])[0];
+  const pend=!online(e);
+  return `<article class="card">
+    <button class="thumb ${w?'watched':''} ${pend?'pending':''}" data-ep="${esc(e.id)}" aria-label="${esc(e.seriesName)} ${e.num}. bölüm ayrıntıları">
+      ${e.thumb?`<img src="${esc(e.thumb)}" alt="" loading="lazy">`:''}
+      ${pend?`<span class="badge wait">${I.clock} Yüklenmesi bekleniyor</span>`:w?`<span class="badge seen">${I.check} İzlendi</span>`:isFresh(e)?'<span class="badge">YENİ</span>':''}
+      ${pend?'':`<span class="play">${I.play(24).replace('currentColor','#fff')}</span>`}
+      ${e.duration?`<span class="dur">${esc(e.duration)}</span>`:''}
+    </button>
+    <div class="cbody">
+      <h3 class="sname">${esc(e.seriesName)}</h3>
+      <div class="meta"><span class="ep">${e.num}. Bölüm</span>${chTag(e.channel)}<span>${rel(e.airDate)}</span></div>
+    </div>
+    <div class="acts">
+      ${pend?`<button class="watch off" data-ep="${esc(e.id)}">Ayrıntılar</button>`:`<a class="watch" href="${esc(src&&src.url)}" target="_blank" rel="noopener" data-watch="${esc(e.id)}">${I.play()} İzle</a>`}
+      <button class="ib like" data-like="${esc(e.series)}" aria-pressed="${l}" aria-label="${l?'Beğeniyi kaldır':'Diziyi beğen'}">${I.heart(l)}</button>
+      <button class="ib fol" data-fol="${esc(e.series)}" aria-pressed="${f}" aria-label="${f?'Takibi bırak':'Diziyi takip et'}">${I.bell(f)}</button>
+      <button class="ib" data-ep="${esc(e.id)}" aria-label="Yorumlar">${I.chat}${n?`<span class="c">${n}</span>`:''}</button>
+    </div></article>`;
+}
+function epRow(e){
+  const w=!!S.me.watched[e.id],src=(e.sources||[])[0],pend=!online(e),f=!!S.me.follows[e.series];
+  return `<article class="rowc">
+    <button class="thumb ${w?'watched':''} ${pend?'pending':''}" data-ep="${esc(e.id)}" aria-label="${esc(e.seriesName)} ${e.num}. bölüm">
+      ${e.thumb?`<img src="${esc(e.thumb)}" alt="" loading="lazy">`:''}
+      ${pend?'':w?`<span class="badge seen">${I.check}</span>`:isFresh(e)?'<span class="badge">YENİ</span>':''}
+      ${pend?'':`<span class="play">${I.play(18).replace('currentColor','#fff')}</span>`}
+    </button>
+    <div class="rb">
+      <h3 class="sname">${esc(e.seriesName)}</h3>
+      <div class="meta"><span class="ep">${e.num}. Bölüm</span>${chTag(e.channel)}</div>
+      <div class="meta">${pend?'Yayınlandı, internete yüklenmesi bekleniyor':esc(rel(e.airDate))+(e.duration?' · '+esc(e.duration):'')}</div>
+      <div class="acts">
+        ${pend?'':`<a class="watch" href="${esc(src&&src.url)}" target="_blank" rel="noopener" data-watch="${esc(e.id)}">${I.play(13)} İzle</a>`}
+        <button class="ib fol" data-fol="${esc(e.series)}" aria-pressed="${f}" aria-label="${f?'Takibi bırak':'Takip et'}" ${pend?'style="margin-left:auto"':''}>${I.bell(f)}</button>
+      </div>
+    </div></article>`;
+}
+function poster(s){
+  const l=!!S.me.likes[s.key],f=!!S.me.follows[s.key],last=epsOf(s.key).find(online);
+  return `<button class="poster" data-series="${esc(s.key)}" aria-label="${esc(s.name)}">
+    ${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="" loading="lazy">`:''}
+    <div class="tags">${last&&isFresh(last)?'<span class="new">YENİ</span>':'<span></span>'}<span class="tg ${l?'on':''}" aria-hidden="true">${l?I.heart(true):f?I.bell(true):''}</span></div>
+    <div class="pc"><h3>${esc(s.name)}</h3>${chTag(s.channel)}<span class="pm">${esc(s.day)} ${esc(s.time||'')}${last?' · '+last.num+'. bölüm':''}</span></div>
+  </button>`;
+}
+function chips(list){
+  const chans=['Tümü',...new Set(list.map(x=>x.channel))];
+  if(!chans.includes(S.channel)) S.channel='Tümü';
+  return `<div class="chips">${chans.map(c=>`<button class="chip" data-ch="${esc(c)}" aria-pressed="${c===S.channel}">${esc(c)}</button>`).join('')}</div>`;
+}
+function empty(t,p,btn){return `<div class="empty"><h3>${t}</h3><p style="margin:0">${p}</p>${btn||''}</div>`;}
+function ring(p){const r=26,c=2*Math.PI*r;return `<svg viewBox="0 0 62 62" width="62" height="62" aria-hidden="true"><circle cx="31" cy="31" r="${r}" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="6"/><circle cx="31" cy="31" r="${r}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}" transform="rotate(-90 31 31)"/></svg>`;}
+
+/* ---------- views ---------- */
+function vHome(){
+  const ser=mS(S.series.slice()).sort((a,b)=>(!!S.me.follows[b.key])-(!!S.me.follows[a.key])||((epsOf(b.key).find(online)||{}).airDate||'').localeCompare((epsOf(a.key).find(online)||{}).airDate||''));
+  const stories=`<div class="stories" aria-label="Diziler">${ser.map(s=>{const last=epsOf(s.key).find(online),fr=last&&isFresh(last);return `<button class="story ${fr?'fresh':''}" data-series="${esc(s.key)}"><span class="av">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}${S.me.follows[s.key]?`<span class="fl">${I.bell(true).replace('21','12').replace('21','12')}</span>`:''}</span><span>${esc(s.name)}</span></button>`;}).join('')}</div>`;
+  const LIVE={'atv':'https://www.atv.com.tr/canli-yayin','Show TV':'https://www.showtv.com.tr/canli-yayin','NOW':'https://www.nowtv.com.tr/canli-yayin','Star TV':'https://www.startv.com.tr/canli-yayin','Kanal 7':'https://www.kanal7.com/canli-izle','Kanal D':'https://www.kanald.com.tr/canli-yayin','TRT 1':'https://www.tabii.com/tr/watch/live/trt1','TV8':'https://www.tv8.com.tr/canli-yayin'};
+  const wdName=DN[new Date().getDay()], wkday=new Date().getDay()%6!==0;
+  const tn=mS(S.series.filter(s=>!s.ended&&(s.day===wdName||(s.day==='Hafta içi her gün'&&wkday)))).map(s=>{const eps=epsOf(s.key),todayEp=eps.find(e=>e.airDate===ymd(new Date())),last=eps[0];
+    return {seriesName:s.name,channel:s.channel,time:s.time||'20:00',live:LIVE[s.channel]||s.page,thumb:thumbOf(s.key),num:todayEp?todayEp.num:last?last.num+1:null};});
+  const now=new Date(), hm=now.getHours()*60+now.getMinutes();
+  const stOf=t=>{const [h,m]=t.time.split(':').map(Number); return h*60+m;};
+  tn.sort((a,b)=>((hm>=stOf(a)+150)-(hm>=stOf(b)+150))||stOf(a)-stOf(b));
+  const tonight=tn.length?`<section class="sec"><div class="sec-h"><h2>Bu akşam ekranda</h2></div><div class="rail">${tn.map(t=>{const st=stOf(t),on=hm>=st&&hm<st+150,past=hm>=st+150;
+    return `<a class="tcard" href="${esc(t.live)}" target="_blank" rel="noopener">${t.thumb?`<img src="${esc(t.thumb)}" alt="" loading="lazy">`:''}<span class="live ${on?'':'soon'}"><i></i>${on?'ŞU AN YAYINDA':past?'BU AKŞAM YAYINLANDI':'SAAT '+esc(t.time)}</span><div class="tc"><h3>${esc(t.seriesName)}</h3><div class="row">${chTag(t.channel).replace('class="ch"','class="ch" style="color:#fff;--cc:var('+(CC[t.channel]||'--muted')+')"')}<span>${t.num?t.num+'. Bölüm':'Yeni bölüm'}</span><span>· ${esc(t.time)}</span></div><div class="row"><span class="ghost">${I.play(13)} Canlı izle</span></div></div></a>`;}).join('')}</div></section>`:'';
+  const fresh=mE(S.episodes.filter(e=>online(e)&&daysAgo(e.airDate)>=0&&daysAgo(e.airDate)<=2)).sort((a,b)=>b.airDate.localeCompare(a.airDate));
+  const wk=mE(weekEps().filter(online)), seen=wk.filter(e=>S.me.watched[e.id]).length;
+  const prog=wk.length?`<section class="sec"><div class="prog"><div class="ringw">${ring(seen/wk.length)}<b>${seen}</b></div><div><h3>Bu hafta ${wk.length} yeni bölüm</h3><p>${seen?`${seen} tanesini izledin. ${wk.length-seen} bölüm seni bekliyor.`:'Henüz hiçbirini izlemedin. Kaçırdıklarına göz at.'}</p><button data-v="week">Kaçırdıklarıma bak</button></div></div></section>`:'';
+  const pend=mE(S.episodes.filter(e=>!online(e)));
+  const head=mineToggle()+(hasFollows()?'':discoverCard());
+  return `${head}${stories}${tonight}
+    <section class="sec"><div class="sec-h"><h2>Yeni düşenler</h2><button class="more" data-v="week">Tümü</button></div>
+    ${fresh.length?`<div class="feed">${fresh.map(epCard).join('')}</div>`:empty('Son iki günde yeni bölüm yok','Bu haftanın bölümleri "Bu hafta" sekmesinde.')}</section>
+    ${prog}
+    ${pend.length?`<section class="sec"><div class="sec-h"><h2>Yakında internette</h2></div><p class="sub">Bu bölümler televizyonda yayınlandı. Kanal yükleyince burada izlenebilir olacak.</p><div class="list">${pend.map(epRow).join('')}</div></section>`:''}`;
+}
+function vWeek(){
+  const days=[...Array(7)].map((_,i)=>{const d=today0(); d.setDate(d.getDate()-6+i); return d;});
+  const cnt=d=>S.episodes.filter(e=>e.airDate===ymd(d)).length;
+  if(!S.day||!days.some(d=>ymd(d)===S.day)){ S.day='all'; }
+  const strip=`<div class="days"><button class="day" data-day="all" aria-pressed="${S.day==='all'}"><small>Hafta</small><b>7</b><em>${weekEps().length} bölüm</em></button>${days.map(d=>{const n=cnt(d);return `<button class="day" data-day="${ymd(d)}" aria-pressed="${S.day===ymd(d)}" ${n?'':'disabled'}><small>${daysAgo(ymd(d))===0?'Bugün':DS[d.getDay()]}</small><b>${d.getDate()}</b><em>${n?n+' bölüm':'—'}</em></button>`;}).join('')}</div>`;
+  let list=mE(S.day==='all'?weekEps():S.episodes.filter(e=>e.airDate===S.day));
+  const base=list; list=chF(list).sort((a,b)=>b.airDate.localeCompare(a.airDate)||(!!S.me.watched[a.id])-(!!S.me.watched[b.id]));
+  let body='';
+  if(S.day==='all'){
+    const g={}; list.forEach(e=>(g[e.airDate]||(g[e.airDate]=[])).push(e));
+    body=Object.keys(g).sort().reverse().map(k=>`<section class="sec" style="margin-top:18px"><div class="sec-h"><h2 style="font-size:17px">${daysAgo(k)===0?'Bugün':daysAgo(k)===1?'Dün':DN[pd(k).getDay()]} <span class="note" style="font-family:var(--body)">${pd(k).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})}</span></h2></div><div class="list">${g[k].map(epRow).join('')}</div></section>`).join('');
+  } else body=`<div class="list" style="margin-top:6px">${list.map(epRow).join('')}</div>`;
+  const prevs=list.filter(online).map(e=>epsOf(e.series).find(p=>p.num<e.num&&online(p))).filter(Boolean).filter(p=>!S.me.watched[p.id]&&!list.includes(p));
+  const prevSec=prevs.length?`<section class="sec"><div class="sec-h"><h2>Önceki bölümler</h2></div><p class="sub">Bu haftanın bölümlerinden önce gelenler. Arada kaçırdığın varsa buradan izleyebilirsin.</p><div class="list">${prevs.map(epRow).join('')}</div></section>`:'';
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Bu hafta yayınlananlar</h2></div><p class="sub">Son 7 günde televizyonda yayınlanan bölümler.</p>${mineToggle()}${strip}${chips(base)}${list.length?body:empty('Bu kanalda bölüm yok','Başka bir kanal seç.')}</section>${prevSec}`;
+}
+function vFollow(){
+  const keys=Object.keys(S.me.follows);
+  if(!keys.length) return `<section class="sec">${empty('Henüz takip ettiğin dizi yok','Bir dizinin zil simgesine dokun. Takip ettiğin dizilerin yeni bölümleri burada toplanır.','<button class="btn" data-v="all">Dizileri keşfet</button>')}</section>`;
+  const list=S.episodes.filter(e=>S.me.follows[e.series]).sort((a,b)=>(!!S.me.watched[a.id])-(!!S.me.watched[b.id])||b.airDate.localeCompare(a.airDate));
+  const unseen=list.filter(e=>online(e)&&!S.me.watched[e.id]);
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Takip ettiklerin</h2></div><p class="sub">${keys.length} dizi · ${unseen.length} izlenmemiş bölüm</p>
+    <div class="stories" style="padding-top:4px">${keys.map(k=>sBy(k)).filter(s=>s.key).map(s=>`<button class="story" data-series="${esc(s.key)}"><span class="av">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}</span><span>${esc(s.name)}</span></button>`).join('')}</div>
+    <div class="feed" style="margin-top:12px">${list.map(epCard).join('')}</div></section>`;
+}
+function vLikes(){
+  const list=S.series.filter(s=>S.me.likes[s.key]);
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Beğendiklerin</h2></div>${list.length?`<div class="grid">${list.map(poster).join('')}</div>`:empty('Beğendiğin dizi yok','Kalp simgesine dokunarak sevdiğin dizileri burada ayrı tutabilirsin.','<button class="btn" data-v="all">Dizileri keşfet</button>')}</section>`;
+}
+function vAll(){
+  const list=chF(S.series.slice()).sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Tüm diziler</h2></div><p class="sub">${S.series.length} dizi, ${new Set(S.series.map(s=>s.channel)).size} kanal</p>${chips(S.series)}<div class="grid">${list.map(poster).join('')}</div></section>`;
+}
+
+function render(){
+  document.querySelectorAll('.tb').forEach(t=>t.toggleAttribute('aria-current',false)||t.dataset.v===S.view&&t.setAttribute('aria-current','page'));
+  const fUnseen=S.episodes.filter(e=>S.me.follows[e.series]&&online(e)&&!S.me.watched[e.id]).length;
+  const nf=$('#n-follow'); nf.hidden=!fUnseen; nf.textContent=fUnseen;
+  const wkU=weekEps().filter(e=>online(e)&&!S.me.watched[e.id]).length; const nw=$('#n-week'); nw.hidden=!wkU; nw.textContent=wkU;
+  const un=unreadN(), nn=$('#n-notif'); nn.hidden=!un; nn.textContent=un;
+  const m=$('#main');
+  if(!S.loaded){ if(S.dbOk===false) m.innerHTML=`<section class="sec">${empty('Bölümler yüklenemedi','Liste Claude hesabındaki kayıtlardan geliyor. Sayfayı claude.ai üzerinde giriş yapmış olarak aç.')}</section>`; return; }
+  if(!S.episodes.length){ m.innerHTML=`<section class="sec">${empty('Henüz bölüm yok','Yeni bölümler eklendiğinde burada kapak görselleriyle listelenecek.')}</section>`; return; }
+  m.innerHTML=({home:vHome,week:vWeek,follow:vFollow,likes:vLikes,all:vAll}[S.view]||vHome)();
+  const u=S.meta&&S.meta.updatedAt;
+  $('#foot').innerHTML=`${u?`Liste ${new Date(u).toLocaleString('tr-TR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})} tarihinde güncellendi.<br>`:''}Bölümler kanalların kendi sitelerinde ya da resmi YouTube kanallarında açılır.`;
+  if(S.open) renderSheet();
+}
+
+/* ---------- sheets ---------- */
+function openSheet(kind,id){ S.open={kind,id}; renderSheet(); const sh=$('#sheet'),sc=$('#scrim'); sh.hidden=false; sc.hidden=false; sh.scrollTop=0; requestAnimationFrame(()=>{sh.classList.add('on');sc.classList.add('on');}); document.body.style.overflow='hidden'; setTimeout(()=>{const b=$('.close',sh); b&&b.focus({preventScroll:true});},80); }
+function closeSheet(){ const sh=$('#sheet'),sc=$('#scrim'); sh.classList.remove('on'); sc.classList.remove('on'); document.body.style.overflow=''; S.open=null; setTimeout(()=>{if(!S.open){sh.hidden=true;sc.hidden=true;}},300); }
+function renderSheet(){
+  const sh=$('#sheet'); const o=S.open; if(!o) return;
+  const draft=$('#cm-text',sh)?$('#cm-text',sh).value:'';
+  if(o.kind==='search'){ renderSearch(sh); return; }
+  if(o.kind==='notif'){ renderNotif(sh); return; }
+  if(o.kind==='series'){
+    const s=sBy(o.id); if(!s.key) return; const f=!!S.me.follows[s.key],l=!!S.me.likes[s.key], eps=epsOf(s.key);
+    sh.innerHTML=`<div class="hero">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}<button class="close" data-close aria-label="Kapat">${I.x}</button></div>
+    <div class="in"><div><h2 id="sh-title">${esc(s.name)}</h2><div class="meta" style="margin-top:6px">${chTag(s.channel)}<span>Her ${esc(s.day.toLocaleLowerCase('tr'))} ${esc(s.time||'')}</span></div></div>
+    <div class="flex"><button class="pill" data-fol="${esc(s.key)}" aria-pressed="${f}">${f?I.check+' Takipte':I.plus+' Takip et'}</button><button class="pill like" data-like="${esc(s.key)}" aria-pressed="${l}">${I.heart(l).replace(/21/g,'15')} ${l?'Beğendin':'Beğen'}</button>${s.page?`<a class="pill" href="${esc(s.page)}" target="_blank" rel="noopener">${I.ext} Tüm bölümler</a>`:''}</div>
+    <div class="list">${eps.map(e=>`<button class="eprow" data-ep="${esc(e.id)}">${e.thumb?`<img src="${esc(e.thumb)}" alt="">`:''}<div><b>${e.num}. Bölüm ${S.me.watched[e.id]?'· İzlendi':''}</b><span>${online(e)?esc(rel(e.airDate))+(e.duration?' · '+esc(e.duration):''):'Yüklenmesi bekleniyor'}</span></div></button>`).join('')}</div></div>`;
+    return;
+  }
+  const e=S.episodes.find(x=>x.id===o.id); if(!e) return;
+  const f=!!S.me.follows[e.series],l=!!S.me.likes[e.series],w=!!S.me.watched[e.id],pend=!online(e);
+  const list=S.comments.filter(c=>c.ep===e.id).sort((a,b)=>(a.at||'').localeCompare(b.at||''));
+  const others=epsOf(e.series).filter(x=>x.id!==e.id);
+  const srcs=(e.sources||[]);
+  sh.innerHTML=`<div class="hero">${e.thumb?`<img src="${esc(e.thumb)}" alt="">`:''}<button class="close" data-close aria-label="Kapat">${I.x}</button></div>
+  <div class="in">
+    <div><h2 id="sh-title">${esc(e.seriesName)}</h2><div class="meta" style="margin-top:6px"><span class="ep">${e.num}. Bölüm</span>${chTag(e.channel)}<span>${esc(pd(e.airDate).toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'}))}</span>${e.duration?`<span>${esc(e.duration)}</span>`:''}</div></div>
+    ${pend?`<p class="desc">Bu bölüm televizyonda yayınlandı ama kanal henüz internete yüklemedi. Dizinin sayfasından kontrol edebilirsin.</p><div class="flex"><a class="pill" href="${esc(srcs[0]&&srcs[0].url)}" target="_blank" rel="noopener">${I.ext} Dizinin sayfasına git</a></div>`
+      :`<div class="flex">${srcs.map((s,i)=>`<a class="${i?'pill':'watch big'}" href="${esc(s.url)}" target="_blank" rel="noopener" data-watch="${esc(e.id)}">${i?I.ext:I.play()} ${i?esc(s.label):'İzle · '+esc(s.label)}</a>`).join('')}</div>
+      <div class="flex"><button class="pill" data-seen="${esc(e.id)}" aria-pressed="${w}">${w?I.check+' İzlendi':'İzledim olarak işaretle'}</button></div>`}
+    ${e.desc?`<p class="desc">${esc(e.desc)}</p>`:''}
+    <div class="flex"><button class="pill" data-fol="${esc(e.series)}" aria-pressed="${f}">${f?I.check+' Takipte':I.plus+' Diziyi takip et'}</button><button class="pill like" data-like="${esc(e.series)}" aria-pressed="${l}">${I.heart(l).replace(/21/g,'15')} ${l?'Beğendin':'Beğen'}</button></div>
+    ${others.length?`<div><div class="note" style="margin-bottom:8px;font-weight:600">Diğer bölümler</div><div class="list">${others.map(x=>`<button class="eprow" data-ep="${esc(x.id)}">${x.thumb?`<img src="${esc(x.thumb)}" alt="">`:''}<div><b>${x.num}. Bölüm ${S.me.watched[x.id]?'· İzlendi':''}</b><span>${online(x)?esc(rel(x.airDate)):'Yüklenmesi bekleniyor'}</span></div></button>`).join('')}</div></div>`:''}
+    <div class="cm"><h3>Yorumlar <span>${list.length}</span></h3>
+      <div class="clist">${list.length?list.map(c=>`<div class="cmt"><div class="who"><b>${esc(nameOf(c.uid))}</b><span>${c.at?new Date(c.at).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}${c.uid&&c.uid===S.uid?` · <button class="del" data-del="${esc(c._id)}">Sil</button>`:''}</span></div><p>${esc(c.text)}</p></div>`).join(''):'<div class="note">Bu bölüme henüz yorum yazılmadı. İlk yorumu sen yaz.</div>'}</div>
+      ${true?`<form id="cm-form"><label for="cm-text" class="note">Bu bölüm hakkında ne düşünüyorsun?</label><textarea id="cm-text" maxlength="1000" placeholder="Yorumunu yaz">${esc(draft)}</textarea><div class="send"><span class="note" id="cm-msg"></span><button class="btn" type="submit">Gönder</button></div></form>`:'<div class="note">Yorum yazmak için claude.ai’de giriş yap.</div>'}
+    </div>
+  </div>`;
+}
+const fold=s=>String(s||'').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function renderSearch(sh){
+  const q=S.q||''; const fq=fold(q);
+  const hits=fq?S.series.filter(s=>fold(s.name).includes(fq)||fold(s.channel).includes(fq)):[];
+  const mine=S.requests.filter(r=>r.uid===S.uid||!r.uid).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
+  const exact=S.series.some(s=>fold(s.name)===fq);
+  sh.innerHTML=`<div class="in" style="padding-top:18px"><div class="flex" style="justify-content:space-between"><h2 id="sh-title">Dizi ara</h2><button class="close" style="position:static;background:var(--surface-2);color:var(--ink)" data-close aria-label="Kapat">${I.x}</button></div>
+  <form class="sbox" id="s-form" role="search"><input id="s-q" type="search" autocomplete="off" placeholder="Dizi adı yaz, ör. Kuruluş Orhan" value="${esc(q)}" aria-label="Dizi adı"><button class="btn" style="margin:0;padding:8px 14px" type="submit">Ara</button></form>
+  ${fq?(hits.length?`<div class="note" style="font-weight:600">Listede bulunanlar</div><div class="sres">${hits.map(s=>{const f=!!S.me.follows[s.key];return `<div class="rowc"><button class="thumb" data-series="${esc(s.key)}" style="width:38%">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}</button><div class="rb"><h3 class="sname">${esc(s.name)}</h3><div class="meta">${chTag(s.channel)}<span>${esc(s.day)} ${esc(s.time||'')}</span></div><div class="acts"><button class="pill" data-fol="${esc(s.key)}" aria-pressed="${f}">${f?I.check+' Takipte':I.plus+' Takip et'}</button></div></div></div>`;}).join('')}</div>`:'')
+   +(exact?'':`<div class="addcard"><b>“${esc(q.trim())}” listede yok</b><span class="note">Bu web sürümü yerleşik bir listeyle gelir. Daha fazla dizi ve otomatik güncelleme için Android uygulamasını kullanabilirsin.</span></div>`)
+   :`<p class="desc">Listedeki ${S.series.length} dizi arasında ara. Aradığın dizi yoksa listeye eklenmesini isteyebilirsin.</p>`}
+  ${mine.length?`<div><div class="note" style="font-weight:600;margin-bottom:6px">Eklenmesini istediklerin</div><div class="reqs">${mine.map(r=>`<div class="req"><span>${esc(r.name)}${r.note?`<br><span class="note">${esc(r.note)}</span>`:''}</span><em class="st-${esc(r.status||'new')}">${r.status==='done'?'Eklendi':r.status==='notfound'?'Bulunamadı':'Aranıyor'}</em></div>`).join('')}</div></div>`:''}
+  </div>`;
+  setTimeout(()=>{const i=$('#s-q'); if(i&&!fq) i.focus();},60);
+}
+const epTime=e=>e.addedAt||(e.airDate+'T23:00:00+03:00');
+const notifList=()=>S.episodes.filter(e=>S.me.follows[e.series]&&online(e)&&daysAgo(e.airDate)<10).sort((a,b)=>epTime(b).localeCompare(epTime(a)));
+const unreadN=()=>notifList().filter(e=>epTime(e)>(S.me.lastSeen||'')&&!S.me.watched[e.id]).length;
+function renderNotif(sh){
+  const L=notifList(), seen=S.notifSeenAt||'';
+  sh.innerHTML=`<div class="in" style="padding-top:18px"><div class="flex" style="justify-content:space-between"><h2 id="sh-title">Bildirimler</h2><button class="close" style="position:static;background:var(--surface-2);color:var(--ink)" data-close aria-label="Kapat">${I.x}</button></div>
+  ${Object.keys(S.me.follows).length?(L.length?`<div class="list">${L.map(e=>`<button class="eprow" data-ep="${esc(e.id)}" ${epTime(e)>seen&&!S.me.watched[e.id]?'style="outline:2px solid var(--coral)"':''}>${e.thumb?`<img src="${esc(e.thumb)}" alt="">`:''}<div><b>${esc(e.seriesName)} · ${e.num}. bölüm internete düştü</b><span>${chTag(e.channel)} · ${esc(rel(e.airDate))}${S.me.watched[e.id]?' · İzlendi':''}</span></div></button>`).join('')}</div>`:'<p class="desc">Takip ettiğin dizilerin son 10 günde yeni bölümü yok.</p>')
+   :'<p class="desc">Henüz takip ettiğin dizi yok. Bir dizinin zil simgesine dokunursan yeni bölümü düştüğünde burada görürsün.</p>'}
+  <p class="note">Telefon bildirimi: Liste günde 3 kez (00:40, 09:40, 15:40) güncellenir. Takip ettiğin bir dizinin yeni bölümü bulunursa Claude uygulaması telefonuna bildirim gönderir.</p></div>`;
+}
+const nameOf=uid=>uid&&uid===S.uid?'Sen':(S.names[uid]||'Bir izleyici');
+
+/* ---------- state ---------- */
+let saveT=null,saving=false,pending=false,lastEdit=0;
+function saveMe(){ try{localStorage.setItem('bv2-me',JSON.stringify(S.me));}catch(e){} }
+async function flush(){ if(saving){pending=true;return;} saving=true;
+  try{ await S.db.collection('data/users/'+S.uid).doc('state').set({follows:S.me.follows,likes:S.me.likes,watched:S.me.watched,lastSeen:S.me.lastSeen||''}); }catch(e){ toast('Kaydedilemedi, tekrar dene.'); }
+  saving=false; if(pending){pending=false;flush();} }
+function toggle(map,key,on,off,el){ if(S.me[map][key]){delete S.me[map][key];toast(off);} else {S.me[map][key]=true;toast(on);} saveMe(); render(); }
+let tt=null; function toast(t){const el=$('#toast'); el.textContent=t; el.hidden=false; clearTimeout(tt); tt=setTimeout(()=>el.hidden=true,1900);}
+function go(v){ S.view=v; try{localStorage.setItem('bv2-view',v)}catch(e){}; if(S.open) closeSheet(); render(); window.scrollTo({top:0}); }
+
+document.addEventListener('click',ev=>{
+  if(ev.target.id==='scrim'){closeSheet();return;}
+  const t=ev.target.closest('button,a'); if(!t) return; const d=t.dataset;
+  if('openSearch' in d){ openSheet('search',''); return; }
+  if('openNotif' in d){ S.notifSeenAt=S.me.lastSeen||''; openSheet('notif',''); S.me.lastSeen=new Date().toISOString(); saveMe(); render(); return; }
+  if(d.req){ addRequest(d.req); return; }
+  if(d.v) go(d.v);
+  else if(d.ch){ S.channel=d.ch; render(); }
+  else if(d.mine!==undefined){ S.mine=d.mine==='1'; try{localStorage.setItem('bv2-mine',S.mine?'1':'0')}catch(e){}; render(); }
+  else if(d.day){ S.day=d.day; render(); }
+  else if(d.ep){ openSheet('ep',d.ep); }
+  else if(d.series){ openSheet('series',d.series); }
+  else if('close' in d) closeSheet();
+  else if(d.fol){ const s=sBy(d.fol); toggle('follows',d.fol,`${s.name} takip ediliyor`,`${s.name} takipten çıkarıldı`); }
+  else if(d.like){ const s=sBy(d.like); toggle('likes',d.like,`${s.name} beğenilenlere eklendi`,`${s.name} beğenilenlerden çıkarıldı`); requestAnimationFrame(()=>document.querySelectorAll(`[data-like="${CSS.escape(d.like)}"] svg`).forEach(x=>x.classList.add('pop'))); }
+  else if(d.seen) toggle('watched',d.seen,'İzlendi olarak işaretlendi','İzlenmedi olarak işaretlendi');
+  else if(d.watch){ if(!S.me.watched[d.watch]){ S.me.watched[d.watch]=true; saveMe(); setTimeout(render,400);} }
+  else if(d.del) delComment(d.del);
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&S.open) closeSheet(); });
+document.addEventListener('input',ev=>{ if(ev.target.id==='s-q'){ S.q=ev.target.value; const pos=ev.target.selectionStart; renderSheet(); const i=$('#s-q'); if(i){i.focus(); try{i.setSelectionRange(pos,pos);}catch(e){}} } });
+async function addRequest(name){ toast('Bu sürümde yeni dizi eklenemez'); return;
+  name=String(name||'').trim().slice(0,80); if(!name) return;
+  if(!S.db){ toast('İstek göndermek için giriş yap'); return; }
+  if(S.requests.some(r=>fold(r.name)===fold(name))){ toast('Bu dizi zaten istek listende'); return; }
+  try{ await S.db.collection('requests').add({name,uid:S.uid||'',at:new Date().toISOString(),status:'new'}); toast(`“${name}” aranacak`); S.q=''; renderSheet(); }
+  catch(e){ toast('İstek gönderilemedi, tekrar dene'); }
+}
+document.addEventListener('submit',async ev=>{
+  if(ev.target.id==='s-form'){ ev.preventDefault(); S.q=$('#s-q').value; renderSheet(); return; }
+  if(ev.target.id!=='cm-form') return; ev.preventDefault();
+  const ta=$('#cm-text'),msg=$('#cm-msg'),text=ta.value.trim(); if(!text){msg.textContent='Önce bir şey yaz.';return;}
+  const btn=ev.target.querySelector('button[type=submit]'); btn.disabled=true; msg.textContent='Gönderiliyor…';
+  const e=S.episodes.find(x=>x.id===S.open.id)||{}; const c={_id:Date.now().toString(36),ep:e.id,series:e.series||'',uid:'local',text,at:new Date().toISOString()};
+  S.comments=[...S.comments,c]; try{localStorage.setItem('bv2-comments',JSON.stringify(S.comments))}catch(_){}
+  ta.value=''; msg.textContent=''; toast('Yorumun eklendi'); renderSheet();
+  btn.disabled=false;
+});
+function delComment(id){ S.comments=S.comments.filter(c=>c._id!==id); try{localStorage.setItem('bv2-comments',JSON.stringify(S.comments))}catch(_){}; toast('Yorum silindi'); renderSheet(); }
+
+/* ---------- boot ---------- */
+render();
+(function(){
+  const D=window.__DATA__||{series:[],episodes:[]};
+  S.series=(D.series||[]).map(x=>({...x}));
+  S.episodes=(D.episodes||[]).map(x=>({...x})).filter(e=>e.airDate);
+  S.meta={updatedAt:D.updatedAt||''}; S.uid='local';
+  try{const c=JSON.parse(localStorage.getItem('bv2-comments')||'[]'); if(Array.isArray(c)) S.comments=c;}catch(e){}
+  S.loaded=true; S.dbOk=true; render();
+})();
+</script>
+
+</body></html>
+</body>
+</html>

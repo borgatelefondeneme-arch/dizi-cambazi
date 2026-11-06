@@ -1,0 +1,35 @@
+name: Katalog güncelle
+
+on:
+  schedule:
+    - cron: "7 4 * * *"   # her gün ~07:07 (Türkiye saati)
+  workflow_dispatch:        # elle de çalıştırılabilir
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Kataloğu yenile
+        run: python tools/refresh_catalog.py
+      - name: Değişiklikleri işle
+        run: |
+          git config user.name "dizi-cambazi-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add app/src/main/assets/seed.json docs/index.html
+          if git diff --cached --quiet; then
+            echo "Değişiklik yok."
+          else
+            git commit -m "Katalog otomatik güncellendi ($(date -u +%Y-%m-%d))"
+            git push
+          fi
