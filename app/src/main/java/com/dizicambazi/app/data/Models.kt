@@ -16,15 +16,16 @@ data class Series(
     val page: String, val src: Src, val ended: Boolean = false, val userAdded: Boolean = false,
     // v2 — rich info, filled best-effort from public sources (Wikipedia). infoAt = when last fetched.
     val summary: String = "", val poster: String = "", val wikiUrl: String = "", val infoAt: Long = 0,
+    val note: String = "",
 ) {
     fun toJson() = JSONObject().put("key", key).put("name", name).put("channel", channel).put("day", day)
         .put("time", time).put("page", page).put("src", src.toJson()).put("ended", ended).put("userAdded", userAdded)
-        .put("summary", summary).put("poster", poster).put("wikiUrl", wikiUrl).put("infoAt", infoAt)
+        .put("summary", summary).put("poster", poster).put("wikiUrl", wikiUrl).put("infoAt", infoAt).put("note", note)
     companion object {
         fun from(o: JSONObject) = Series(o.getString("key"), o.getString("name"), o.optString("channel"),
             o.optString("day"), o.optString("time", "20:00"), o.optString("page"), Src.from(o.optJSONObject("src")),
             o.optBoolean("ended"), o.optBoolean("userAdded"),
-            o.optString("summary"), o.optString("poster"), o.optString("wikiUrl"), o.optLong("infoAt"))
+            o.optString("summary"), o.optString("poster"), o.optString("wikiUrl"), o.optLong("infoAt"), o.optString("note"))
     }
 }
 

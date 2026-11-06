@@ -164,21 +164,22 @@ object Scraper {
             }
         }
         val nums = e.keys.sortedDescending().take(3)
-        for (n in nums) if (e[n]!!.air == null) {
-            val ref = nums.filter { e[it]!!.air != null }
-            e[n]!!.air = if (ref.isNotEmpty() && wd != null) { val r = ref.minBy { kotlin.math.abs(it - n) }; e[r]!!.air!!.plusDays(7L * (n - r)) } else LocalDate.now(TZ)
-        }
+        // En yüksek numara = en yeni; tarihleri numaraya göre KESİN azalan yap. Tek tek çekilen
+        // tarihler (özellikle günü bilinmeyen dizilerde) güvenilmez, bu yüzden en güncel güvenilir
+        // tarihi çıpa alıp bölümler arası sabit adımla geriye gideriz.
         val today = LocalDate.now(TZ)
-        for (n in nums) if (e[n]!!.air!!.isAfter(today)) e[n]!!.air = snap(today, wd)
-        for (i in 1 until nums.size) {
-            val a = e[nums[i - 1]]!!.air!!; val b = e[nums[i]]!!.air!!
-            if (wd != null && java.time.temporal.ChronoUnit.DAYS.between(b, a) < 6) e[nums[i]]!!.air = a.minusDays(7L * (nums[i - 1] - nums[i]))
-        }
+        val step = if (s.day == "Hafta içi her gün") 1L else 7L
+        var anchor = nums.mapNotNull { e[it]!!.air }.maxOrNull() ?: today
+        if (anchor.isAfter(today)) anchor = today
+        if (wd != null) anchor = snap(anchor, wd)
+        nums.forEachIndexed { i, n -> e[n]!!.air = anchor.minusDays(step * i) }
+        val prefix = Regex("^.{0,40}?böl[üu]m[üu]? izle(mek)?\\b[^.]*\\.\\s*", RegexOption.IGNORE_CASE)
         return nums.map { n ->
             val r = e[n]!!; val src = ArrayList<Source>()
             r.yt?.let { src.add(Source("YouTube", "https://www.youtube.com/watch?v=$it")) }
             r.site?.let { src.add(Source(SRC_LABEL[t] ?: "Kanal sitesi", it)) }
-            Episode("${s.key}-$n", s.key, s.name, s.channel, n, r.air.toString(), r.dur, (r.desc ?: "").take(220), src, "online",
+            val desc = prefix.replaceFirst(r.desc ?: "", "").take(220)
+            Episode("${s.key}-$n", s.key, s.name, s.channel, n, r.air.toString(), r.dur, desc, src, "online",
                 r.yt?.let { "https://i.ytimg.com/vi/$it/hqdefault.jpg" } ?: r.img ?: "", System.currentTimeMillis(),
                 ytEmbed = r.yt?.let { embeddable(it) } ?: true)
         }

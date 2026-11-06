@@ -114,7 +114,11 @@ def series_episodes(s):
             if mm: d["air"]=dt.date(TODAY.year,MON[mm.group(2)],int(mm.group(1)))
         E[n]=d
     base=norm(s["name"].split(":")[0]); full=re.compile(r"(^|\s)"+re.escape(norm(s["name"]))+r"\s+\d+")
+    seen_nums=set()
     for v in yt_search(s["name"]):
+        if base in norm(v.get("ch","")) and full.search(norm(v.get("title",""))):
+            mnum=re.search(r"(\d+)\.?\s*[Bb]ölüm",v.get("title",""))
+            if mnum: seen_nums.add(int(mnum.group(1)))   # fragman/klip dahil en yüksek numara
         ln=v.get("len")
         if not ln or not (3000<secs(ln)<4*3600): continue
         if re.search(r"review|analy|anal[iİ]z|kısa|tüm bölüm|tek part|fragman",low(v["title"])): continue
@@ -131,24 +135,29 @@ def series_episodes(s):
             if not d["air"]: d["air"]=snap(yd,wd)
         if not d["dur"]: d["dur"]=ln
     nums=sorted(E,reverse=True)[:3]
-    for n in nums:
-        if not E[n]["air"]:
-            ref=[m for m in nums if E[m]["air"]]
-            E[n]["air"]=(E[min(ref,key=lambda m:abs(m-n))]["air"]+dt.timedelta(days=7*(n-min(ref,key=lambda m:abs(m-n))))) if (ref and wd is not None) else TODAY
-    for i in range(1,len(nums)):
-        a=E[nums[i-1]]["air"]; b=E[nums[i]]["air"]
-        if wd is not None and (a-b).days<6: E[nums[i]]["air"]=a-dt.timedelta(days=7*(nums[i-1]-nums[i]))
-    for n in nums:
-        if E[n]["air"]>TODAY: E[n]["air"]=snap(TODAY,wd)
+    # --- Tarihleri tutarlı yap: en yüksek numara = en yeni; tarihler numaraya göre KESİN azalan ---
+    # Tek tek çekilen tarihler (özellikle günü bilinmeyen dizilerde) güvenilmez; en güncel güvenilir
+    # tarihi çıpa alıp bölümler arası sabit adımla geriye gideriz.
+    step = 1 if s.get("day")=="Hafta içi her gün" else 7
+    parsed=[E[n]["air"] for n in nums if E[n]["air"]]
+    anchor = max(parsed) if parsed else TODAY
+    if anchor > TODAY: anchor = TODAY
+    if wd is not None: anchor = snap(anchor, wd)
+    for i,n in enumerate(nums):   # nums zaten büyükten küçüğe
+        E[n]["air"] = anchor - dt.timedelta(days=step*i)
+    s["_scrapedMax"]=max(nums) if nums else 0
+    s["_seenMax"]=max(seen_nums) if seen_nums else 0
     out=[]
     for n in nums:
         d=E[n]; srcs=[]
         if d.get("yt"): srcs.append({"label":"YouTube","url":"https://www.youtube.com/watch?v="+d["yt"]})
         if d.get("site"): srcs.append({"label":SRC_LABEL.get(t,"Kanal sitesi"),"url":d["site"]})
         thumb = ("https://i.ytimg.com/vi/%s/hqdefault.jpg"%d["yt"]) if d.get("yt") else (d.get("img") or "")
+        desc=(d.get("desc") or "")
+        desc=re.sub(r'^.{0,40}?\bböl[üu]m[üu]?\s+izle(mek)?\b[^.]*\.\s*','',desc,flags=re.I)  # "X. bölümü izlemek için tıkla." önekini at
         out.append(dict(id=f'{s["key"]}-{n}', series=s["key"], seriesName=s["name"], channel=s["channel"], num=n,
-                        airDate=d["air"].isoformat(), duration=d.get("dur") or "", desc=(d.get("desc") or "")[:220],
-                        sources=srcs, status="online", thumb=thumb, addedAt=d["air"].isoformat()+"T21:00:00+03:00"))
+                        airDate=E[n]["air"].isoformat(), duration=d.get("dur") or "", desc=desc[:220],
+                        sources=srcs, status="online", thumb=thumb, addedAt=E[n]["air"].isoformat()+"T21:00:00+03:00"))
     return out
 
 KNOWN = {
@@ -227,7 +236,13 @@ def main():
         if len(eps)<2 or (not fresh and s["name"] not in FORCE):
             print("DROP", s["name"], "eps=%d"%len(eps), "latest=%s"%latest); continue
         day = s["day"] if s["day"] else (guess_day(eps) if guess_day(eps)=="Hafta içi her gün" else "")
-        series.append({"key":s["key"],"name":s["name"],"channel":s["channel"],"day":day,"time":s["time"],"page":s["page"],"src":s["src"],"ended":s["ended"]})
+        sd={"key":s["key"],"name":s["name"],"channel":s["channel"],"day":day,"time":s["time"],"page":s["page"],"src":s["src"],"ended":s["ended"]}
+        sm=s.get("_scrapedMax",0); vm=s.get("_seenMax",0)
+        if vm > sm:  # dizi daha ileride ama o bölümler henüz internette (ücretsiz) yok
+            sd["note"]=f"Dizi {vm}. bölümde. Burada ücretsiz yayınlanan son bölüm {sm}. bölüm; yeni bölümler yayınlandıkça eklenir."
+        elif s["name"] in FORCE:  # yeni bölümleri taranabilir bir kaynakta olmayan diziler
+            sd["note"]=f"Yeni bölümler {s['channel']}'de yayınlanıyor; ücretsiz kaynağa (YouTube) geç düştüğü için burada şu an {sm}. bölüme kadar görünür."
+        series.append(sd)
         episodes.extend(eps)
         print("KEEP", s["name"], "[%s]"%s["channel"], "day='%s'"%day, [e["num"] for e in eps])
     if len(series)<12:

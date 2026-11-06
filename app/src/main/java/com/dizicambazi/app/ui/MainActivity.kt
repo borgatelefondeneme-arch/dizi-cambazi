@@ -107,6 +107,21 @@ fun AppRoot(deepLink: MutableState<String?>) {
     LaunchedEffect(deepLink.value) { deepLink.value?.let { push(Route.Ep(it)); deepLink.value = null } }
     BackHandler(enabled = stack.size > 1) { stack.removeAt(stack.lastIndex) }
 
+    // Play Store dışı güncelleme uyarısı
+    var update by remember { mutableStateOf<com.dizicambazi.app.data.UpdateInfo?>(null) }
+    LaunchedEffect(Unit) {
+        val cur = runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt() }.getOrDefault(0)
+        val info = withContext(Dispatchers.IO) { com.dizicambazi.app.data.UpdateCheck.fetch() }
+        if (info != null && info.versionCode > cur) update = info
+    }
+    update?.let { up ->
+        AlertDialog(onDismissRequest = { update = null },
+            title = { Text("Yeni sürüm var: ${up.versionName}") },
+            text = { Text((if (up.notes.isNotEmpty()) up.notes + "\n\n" else "") + "İndirip üstüne kurabilirsin; verilerin korunur.") },
+            confirmButton = { TextButton({ WebPlayerActivity.openExternal(ctx, up.url); update = null }) { Text("İndir") } },
+            dismissButton = { TextButton({ update = null }) { Text("Daha sonra") } })
+    }
+
     val notifPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= 33) notifPerm.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -524,6 +539,10 @@ fun SeriesScreen(key: String, back: () -> Unit, open: (Episode) -> Unit, play: (
                 Pill(if (key in follows) "✓ Takipte" else "+ Takip et", key in follows) { Repo.toggleFollow(key) }
                 Pill(if (key in likes) "♥ Beğendin" else "♡ Beğen", key in likes) { Repo.toggleLike(key) }
                 if (s.page.isNotEmpty()) Pill("Tüm bölümler") { WebPlayerActivity.start(ctx, s.page, s.name) }
+            }
+            if (s.note.isNotEmpty()) Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(C.surface2).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.Info, null, tint = C.amber, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                Text(s.note, style = T.meta.copy(fontSize = 13.sp))
             }
             // Rich info from Wikipedia (best-effort)
             if (s.summary.isNotEmpty()) {
