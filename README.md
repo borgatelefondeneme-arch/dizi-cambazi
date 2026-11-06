@@ -11,6 +11,12 @@ Türkiye'deki büyük kanalların (atv, Show TV, Star TV, Kanal D, NOW, TRT 1, K
 - **Zengin dizi bilgisi:** Dizi sayfasında afiş ve konu özeti (Vikipedi).
 - **Devam et, açık/koyu tema, takip, beğeni, izledim işareti ve bölüm yorumları.** Hepsi telefonda saklanır.
 
+## Web sürümü (tarayıcıda, kurulum yok)
+Hesapsız, herkese açık web sürümü — telefon ya da bilgisayar tarayıcısında açılır:
+- https://raw.githack.com/borgatelefondeneme-arch/dizi-cambazi/main/docs/index.html
+
+Bu sürüm yerleşik bir dizi listesiyle gelir; takip/beğeni/izledim seçimleri tarayıcında saklanır. Video kanalın sitesinde ya da YouTube'da açılır. (Uygulama içi oynatma ve otomatik güncelleme yalnızca Android uygulamasında.)
+
 ## Kurulum
 - **Hazır APK (sürüm 2.0):** [DiziCambazi-v2.apk dosyasını indir](https://github.com/borgatelefondeneme-arch/dizi-cambazi/raw/main/apk/DiziCambazi-v2.apk), sonra telefonda aç. Android bilinmeyen kaynaktan yükleme izni isteyecek.
 - Eski sürüm (1.0) arşiv olarak durur: [DiziCambazi.apk](https://github.com/borgatelefondeneme-arch/dizi-cambazi/raw/main/apk/DiziCambazi.apk).

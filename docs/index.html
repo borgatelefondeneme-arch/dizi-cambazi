@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#150A20">
+<title>Dizi Cambazı</title>
+</head>
+<body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Dizi Cambazı</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Onest:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: app shell — greeting header, story bubbles, tonight carousel, feeds; fixed bottom tab bar; bottom sheets for detail */
+:root{
+  --bg:#FFF3EE; --glow1:rgba(255,77,94,.20); --glow2:rgba(255,176,32,.22);
+  --surface:#FFFFFF; --surface-2:#F6E9F0; --ink:#25112F; --muted:#6F5E7A; --line:#EBD9E2;
+  --coral:#F0364C; --amber:#E89400; --plum:#6B2FA0; --on-coral:#FFFFFF;
+  --grad:linear-gradient(135deg,#FF4D5E 0%,#FF8A3D 55%,#FFB020 100%);
+  --ring:conic-gradient(from 210deg,#FF4D5E,#FFB020,#B44CFF,#FF4D5E);
+  --scrim:linear-gradient(180deg,rgba(20,6,30,0) 35%,rgba(20,6,30,.88) 100%);
+  --shade:rgba(20,8,30,.55); --tab:rgba(255,255,255,.86);
+  --heart:#E8265E; --ok:#14946B;
+  --c-atv:#E89400; --c-show:#F0364C; --c-star:#C99A00; --c-kd:#0E9F95; --c-now:#7B3FD0; --c-trt:#2B6FE0; --c-k7:#2F9E44;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Onest","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#150A20; --glow1:rgba(255,77,94,.26); --glow2:rgba(180,76,255,.22);
+  --surface:#21142F; --surface-2:#2E1E40; --ink:#FBF0FF; --muted:#B9A6CB; --line:#3A2950;
+  --coral:#FF5C6E; --amber:#FFC247; --plum:#C08BFF; --on-coral:#FFFFFF;
+  --shade:rgba(0,0,0,.6); --tab:rgba(28,17,40,.86); --heart:#FF6E95; --ok:#4BD6A4;
+  --c-atv:#FFB84D; --c-show:#FF6B7B; --c-star:#F2CB4C; --c-kd:#3FD3C6; --c-now:#B287FF; --c-trt:#6FA3FF; --c-k7:#66CF7A;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#150A20; --glow1:rgba(255,77,94,.26); --glow2:rgba(180,76,255,.22);
+  --surface:#21142F; --surface-2:#2E1E40; --ink:#FBF0FF; --muted:#B9A6CB; --line:#3A2950;
+  --coral:#FF5C6E; --amber:#FFC247; --plum:#C08BFF; --on-coral:#FFFFFF;
+  --shade:rgba(0,0,0,.6); --tab:rgba(28,17,40,.86); --heart:#FF6E95; --ok:#4BD6A4;
+  --c-atv:#FFB84D; --c-show:#FF6B7B; --c-star:#F2CB4C; --c-kd:#3FD3C6; --c-now:#B287FF; --c-trt:#6FA3FF; --c-k7:#66CF7A;
+  color-scheme:dark }
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(60% 40% at 10% 0%,var(--glow1),transparent 70%),radial-gradient(55% 35% at 95% 8%,var(--glow2),transparent 70%)}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--coral);outline-offset:2px;border-radius:10px}
+.wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px calc(96px + env(safe-area-inset-bottom,0px))}
+
+/* header */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-block:6px 4px}
+.hi{font-size:14px;color:var(--muted);font-weight:500}
+.brand{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.03em;line-height:1.02;margin:2px 0 0}
+.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.datebox{background:var(--surface);border-radius:14px;padding:6px 12px;text-align:center;box-shadow:0 6px 18px -10px rgba(120,30,60,.35)}
+.datebox b{display:block;font-family:var(--display);font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.datebox small{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--coral)}
+
+.sec{margin-top:26px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.sec-h h2{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;margin:0;display:flex;align-items:center;gap:8px}
+.sec-h .more{border:0;background:none;color:var(--coral);font-weight:600;font-size:14px;padding:4px 0}
+.sub{color:var(--muted);font-size:13px;margin:-8px 0 12px}
+
+/* stories */
+.stories{display:flex;gap:14px;overflow-x:auto;padding:14px 2px 6px;margin-inline:-2px;scrollbar-width:none;scroll-snap-type:x proximity}
+.stories::-webkit-scrollbar,.rail::-webkit-scrollbar,.days::-webkit-scrollbar,.chips::-webkit-scrollbar{display:none}
+.story{border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:72px;flex:none;scroll-snap-align:start}
+.story .av{width:68px;height:68px;border-radius:50%;padding:3px;background:var(--line);position:relative}
+.story.fresh .av{background:var(--ring)}
+.story .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--bg);display:block}
+.story .av .fl{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#fff;display:grid;place-items:center;border:2px solid var(--bg)}
+.story span{font-size:11.5px;font-weight:600;line-height:1.2;text-align:center;max-width:72px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* tonight rail */
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}
+.tcard{flex:none;width:min(78vw,330px);scroll-snap-align:start;border-radius:var(--r);overflow:hidden;position:relative;aspect-ratio:16/11;max-width:100%;background:var(--surface-2);color:#fff;text-decoration:none;display:block;box-shadow:0 14px 30px -18px rgba(90,10,40,.6)}
+.tcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tcard::after{content:"";position:absolute;inset:0;background:var(--scrim)}
+.tcard .tc{position:absolute;left:14px;right:14px;bottom:12px;z-index:1;display:flex;flex-direction:column;gap:6px}
+.tcard h3{font-family:var(--display);font-size:22px;font-weight:800;margin:0;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}
+.tcard .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:500}
+.live{display:inline-flex;align-items:center;gap:6px;background:var(--coral);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:999px;position:absolute;top:12px;left:12px;z-index:1}
+.live i{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
+.soon{background:rgba(255,255,255,.92);color:#25112F}
+.soon i{background:var(--coral)}
+@keyframes blink{50%{opacity:.25}}
+.ghost{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;color:#fff}
+
+/* channel tag */
+.ch{display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:12.5px;white-space:nowrap}
+.ch::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cc,var(--muted))}
+
+/* big episode cards */
+.feed{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:640px){.feed{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 10px 28px -20px rgba(90,10,40,.55);transition:transform .15s}
+.card:active{transform:scale(.985)}
+.thumb{position:relative;display:block;aspect-ratio:16/9;max-width:100%;background:var(--surface-2);border:0;padding:0;width:100%}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .dur{position:absolute;right:10px;bottom:10px;background:var(--shade);color:#fff;font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;font-variant-numeric:tabular-nums}
+.badge{position:absolute;left:10px;top:10px;font-size:11px;font-weight:700;letter-spacing:.07em;padding:4px 9px;border-radius:8px;color:#fff;background:var(--coral);display:flex;gap:4px;align-items:center}
+.badge.seen{background:var(--shade);letter-spacing:0;font-weight:600}
+.badge.wait{background:var(--shade);letter-spacing:0;font-weight:600}
+.thumb.watched img{filter:saturate(.3) brightness(.8)}
+.thumb.pending img{filter:grayscale(.6) brightness(.7)}
+.thumb .play{position:absolute;inset:0;margin:auto;width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.55)}
+.cbody{padding:12px 14px 4px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.sname{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.015em;line-height:1.12;margin:0;text-wrap:balance}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.meta .ep{color:var(--ink);font-weight:700}
+.acts{display:flex;align-items:center;gap:4px;padding:8px 8px 12px 14px}
+.watch{display:inline-flex;align-items:center;gap:7px;background:var(--grad);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:9px 16px;border-radius:999px;margin-right:auto;border:0;box-shadow:0 8px 18px -10px rgba(240,54,76,.9)}
+.watch.off{background:var(--surface-2);color:var(--muted);box-shadow:none}
+.ib{border:0;background:transparent;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--muted);position:relative;flex:none}
+.ib:hover{background:var(--surface-2)}
+.ib.like[aria-pressed="true"]{color:var(--heart)}
+.ib.fol[aria-pressed="true"]{color:var(--coral)}
+.ib .c{position:absolute;top:3px;right:1px;font-size:10px;font-weight:700;background:var(--ink);color:var(--bg);border-radius:999px;padding:0 5px;font-variant-numeric:tabular-nums}
+.pop{animation:pop .35s ease}
+@keyframes pop{40%{transform:scale(1.35)}}
+svg{display:block}
+
+/* compact rows */
+.list{display:flex;flex-direction:column;gap:10px}
+.rowc{display:flex;gap:12px;align-items:stretch;background:var(--surface);border-radius:16px;padding:8px;min-width:0;box-shadow:0 8px 22px -20px rgba(90,10,40,.6)}
+.rowc .thumb{width:44%;max-width:190px;flex:none;border-radius:11px;overflow:hidden}
+.rowc .thumb .play{width:38px;height:38px}
+.rowc .rb{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;padding:2px 2px 2px 0}
+.rowc .sname{font-size:16.5px}
+.rowc .acts{padding:4px 0 0;margin-top:auto}
+.rowc .watch{padding:6px 12px;font-size:13px}
+.rowc .ib{width:34px;height:34px}
+
+/* progress card */
+.prog{background:var(--grad);color:#fff;border-radius:var(--r);padding:16px 18px;display:flex;align-items:center;gap:16px;box-shadow:0 16px 32px -18px rgba(240,54,76,.8)}
+.prog .ringw{width:62px;height:62px;flex:none;position:relative}
+.prog .ringw b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:18px}
+.prog h3{font-family:var(--display);font-size:19px;margin:0 0 2px;line-height:1.15}
+.prog p{margin:0;font-size:13.5px;opacity:.92}
+.prog button{margin-top:8px;border:0;background:#fff;color:#C2243A;font-weight:700;font-size:13px;padding:7px 14px;border-radius:999px}
+
+/* days strip */
+.days{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.day{flex:none;border:0;background:var(--surface);border-radius:16px;width:62px;padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 6px 16px -14px rgba(90,10,40,.6)}
+.day small{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.day b{font-family:var(--display);font-size:22px;line-height:1.1;font-variant-numeric:tabular-nums}
+.day em{font-style:normal;font-size:11px;font-weight:600;color:var(--coral)}
+.day[aria-pressed="true"]{background:var(--grad);color:#fff}
+.day[aria-pressed="true"] small,.day[aria-pressed="true"] em{color:#fff}
+.day:disabled{opacity:.45;cursor:default}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.chip{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{border-color:transparent;background:var(--ink);color:var(--bg)}
+
+/* series grid */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.poster{position:relative;border:0;padding:0;border-radius:var(--r);overflow:hidden;aspect-ratio:3/4;max-width:100%;background:var(--surface-2);color:#fff;text-align:left;display:block;width:100%;box-shadow:0 12px 26px -18px rgba(90,10,40,.65)}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.poster::after{content:"";position:absolute;inset:0;background:var(--scrim)}
+.poster .pc{position:absolute;left:12px;right:12px;bottom:12px;z-index:1;display:flex;flex-direction:column;gap:4px}
+.poster h3{font-family:var(--display);font-size:18px;font-weight:800;margin:0;line-height:1.08;letter-spacing:-.01em;text-wrap:balance}
+.poster .pm{font-size:12px;opacity:.9;font-weight:500}
+.poster .ch{color:#fff}
+.poster .tags{position:absolute;top:10px;left:10px;right:10px;z-index:1;display:flex;justify-content:space-between;gap:6px}
+.poster .tg{background:var(--shade);border-radius:999px;width:30px;height:30px;display:grid;place-items:center;color:#fff}
+.poster .tg.on{background:#fff;color:var(--heart)}
+.poster .new{background:var(--coral);font-size:11px;font-weight:700;letter-spacing:.06em;border-radius:8px;padding:4px 8px}
+
+.empty{background:var(--surface);border-radius:var(--r);padding:28px 20px;text-align:center;color:var(--muted)}
+.empty h3{font-family:var(--display);color:var(--ink);font-size:20px;margin:0 0 6px}
+.btn{border:0;background:var(--grad);color:#fff;font-weight:700;padding:10px 18px;border-radius:999px;margin-top:12px}
+.foot{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;line-height:1.5}
+.skel{background:var(--surface);border-radius:var(--r);height:260px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+
+.hbtns{display:flex;gap:8px;align-items:center}
+.hb{width:44px;height:44px;border-radius:14px;border:0;background:var(--surface);display:grid;place-items:center;position:relative;box-shadow:0 6px 18px -10px rgba(120,30,60,.35)}
+.hb .n{position:absolute;top:-4px;right:-4px;background:var(--coral);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 6px;font-variant-numeric:tabular-nums;border:2px solid var(--bg)}
+.sbox{display:flex;gap:8px;align-items:center;background:var(--surface-2);border-radius:16px;padding:4px 6px 4px 14px}
+.sbox input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;padding:10px 0;outline:none}
+.sres{display:flex;flex-direction:column;gap:8px}
+.reqs{display:flex;flex-direction:column;gap:6px}
+.req{display:flex;justify-content:space-between;gap:10px;background:var(--surface-2);border-radius:12px;padding:9px 12px;font-size:14px}
+.req em{font-style:normal;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;align-self:center}
+.req .st-new{background:var(--amber);color:#2a1600}.req .st-done{background:var(--ok);color:#fff}.req .st-notfound{background:var(--line);color:var(--ink)}
+.addcard{border:2px dashed var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.addcard b{font-family:var(--display);font-size:17px}
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--tab);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar nav{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tb{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted);position:relative}
+.tb svg{width:24px;height:24px}
+.tb[aria-current="page"]{color:var(--coral)}
+.tb .n{position:absolute;top:2px;left:calc(50% + 6px);background:var(--coral);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:0 5px;min-width:16px;text-align:center;font-variant-numeric:tabular-nums}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,4,16,.55);z-index:20;opacity:0;transition:opacity .2s}
+.scrim.on{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:24px 24px 0 0;max-height:94%;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+.sheet.on{transform:none}
+@media (min-width:720px){.sheet{left:50%;right:auto;width:660px;margin-left:-330px}}
+.hero{position:relative;aspect-ratio:16/9;max-width:100%;background:var(--surface-2)}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 30%)}
+.close{position:absolute;top:12px;right:max(12px,env(safe-area-inset-right,0px));z-index:2;background:var(--shade);color:#fff;width:38px;height:38px;border-radius:50%;border:0;display:grid;place-items:center}
+.in{padding:16px max(18px,env(safe-area-inset-right,0px)) 0 max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+.in h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.025em;line-height:1.05;margin:0}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.big{font-size:16px;padding:12px 20px;margin-right:0}
+.pill{font-size:13px;font-weight:600;border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;background:transparent;display:inline-flex;align-items:center;gap:6px}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill.like[aria-pressed="true"]{background:var(--heart);border-color:var(--heart);color:#fff}
+.desc{color:var(--muted);font-size:14px;margin:0}
+.note{font-size:12.5px;color:var(--muted)}
+.eprow{display:flex;gap:10px;align-items:center;border:0;background:var(--surface-2);border-radius:14px;padding:6px;text-align:left;width:100%}
+.eprow img{width:96px;aspect-ratio:16/9;max-width:100%;object-fit:cover;border-radius:9px;flex:none}
+.eprow b{display:block;font-size:14px}
+.eprow span{font-size:12.5px;color:var(--muted)}
+.cm h3{font-family:var(--display);font-size:18px;margin:6px 0 8px;display:flex;gap:8px;align-items:baseline}
+.cm h3 span{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:500}
+.clist{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.cmt{background:var(--surface-2);border-radius:14px;padding:10px 12px;min-width:0}
+.cmt .who{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.cmt .who b{color:var(--ink);font-weight:700}
+.cmt p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.del{border:0;background:none;color:var(--muted);font-size:12px;padding:0;text-decoration:underline}
+textarea{width:100%;min-height:84px;resize:vertical;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:10px 12px;font:inherit}
+.send{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px}
+.send .btn{margin-top:0}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:30;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="glow" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="hdr">
+    <div><div class="hi" id="hi">Merhaba</div><h1 class="brand">Dizi <span>Cambazı</span></h1></div>
+    <div class="hbtns"><button class="hb" data-open-search aria-label="Dizi ara"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="hb" data-open-notif aria-label="Bildirimler"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><span class="n" id="n-notif" hidden></span></button><div class="datebox" id="datebox"></div></div>
+  </header>
+  <main id="main"><div class="sec"><div class="skel"></div></div><div class="sec"><div class="skel"></div></div></main>
+  <p class="foot" id="foot"></p>
+</div>
+
+<div class="tabbar"><nav aria-label="Bölümler">
+  <button class="tb" data-v="home" id="tb-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Ana sayfa</button>
+  <button class="tb" data-v="week" id="tb-week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Bu hafta<span class="n" id="n-week" hidden></span></button>
+  <button class="tb" data-v="follow" id="tb-follow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>Takip<span class="n" id="n-follow" hidden></span></button>
+  <button class="tb" data-v="likes" id="tb-likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>Beğeniler</button>
+  <button class="tb" data-v="all" id="tb-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>Diziler</button>
+</nav></div>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title" hidden></section>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>window.__DATA__={"series": [{"key": "alti-ustu-istanbul", "name": "Altı Üstü İstanbul", "channel": "atv", "day": "Pazartesi", "time": "20:00", "page": "https://www.atv.com.tr/alti-ustu-istanbul/bolumler", "ended": false}, {"key": "anne-yarisi", "name": "Anne Yarısı", "channel": "NOW", "day": "Salı", "time": "20:00", "page": "https://www.nowtv.com.tr/Anne-Yarisi/izle", "ended": false}, {"key": "ben-leman", "name": "Ben Leman", "channel": "NOW", "day": "", "time": "20:00", "page": "https://www.nowtv.com.tr/Ben-Leman/izle", "ended": false}, {"key": "ben-onun-annesiyim", "name": "Ben Onun Annesiyim", "channel": "NOW", "day": "", "time": "20:00", "page": "https://www.nowtv.com.tr/Ben-Onun-Annesiyim/izle", "ended": false}, {"key": "daha-17", "name": "Daha 17", "channel": "Kanal D", "day": "Pazar", "time": "20:00", "page": "https://www.kanald.com.tr/daha-17/bolumler", "ended": false}, {"key": "evlilik-guzeldir", "name": "Evlilik Güzeldir", "channel": "TRT 1", "day": "Pazartesi", "time": "20:00", "page": "https://www.trt1.com.tr/diziler/evlilik-guzeldir", "ended": false}, {"key": "gelin", "name": "Gelin", "channel": "Kanal 7", "day": "Hafta içi her gün", "time": "19:00", "page": "https://www.kanal7.com/dizi/dizi-gelin", "ended": false}, {"key": "gonul-dagi", "name": "Gönül Dağı", "channel": "TRT 1", "day": "Cumartesi", "time": "20:00", "page": "https://www.trt1.com.tr/diziler/gonul-dagi", "ended": false}, {"key": "guller-ve-gunahlar", "name": "Güller ve Günahlar", "channel": "Kanal D", "day": "Cumartesi", "time": "20:00", "page": "https://www.kanald.com.tr/guller-ve-gunahlar/bolumler", "ended": false}, {"key": "gunesin-dogdugu-yer", "name": "Güneşin Doğduğu Yer", "channel": "atv", "day": "Perşembe", "time": "20:00", "page": "https://www.atv.com.tr/gunesin-dogdugu-yer/bolumler", "ended": false}, {"key": "halef-koklerin-cagrisi", "name": "Halef: Köklerin Çağrısı", "channel": "NOW", "day": "Perşembe", "time": "20:00", "page": "https://www.nowtv.com.tr/Halef-Koklerin-Cagrisi/izle", "ended": false}, {"key": "haysiyet", "name": "Haysiyet", "channel": "Kanal D", "day": "Salı", "time": "20:00", "page": "https://www.kanald.com.tr/haysiyet/bolumler", "ended": false}, {"key": "kod-adi-kirlangic", "name": "Kod Adı Kırlangıç", "channel": "TRT 1", "day": "Cumartesi", "time": "22:45", "page": "https://www.trt1.com.tr/diziler/kod-adi-kirlangic", "ended": false}, {"key": "kurulus-orhan", "name": "Kuruluş Orhan", "channel": "atv", "day": "Cuma", "time": "20:00", "page": "https://www.atv.com.tr/kurulus-orhan/bolumler", "ended": false}, {"key": "kiskanmak", "name": "Kıskanmak", "channel": "NOW", "day": "", "time": "20:00", "page": "https://www.nowtv.com.tr/Kiskanmak/izle", "ended": false}, {"key": "kizilcik-serbeti", "name": "Kızılcık Şerbeti", "channel": "Show TV", "day": "Cuma", "time": "20:00", "page": "https://www.showtv.com.tr/dizi/tanitim/kizilcik-serbeti/2875", "ended": false}, {"key": "leyla-hayat-ask-adalet", "name": "Leyla: Hayat, Aşk, Adalet", "channel": "NOW", "day": "", "time": "20:00", "page": "https://www.nowtv.com.tr/Leyla-Hayat-Ask-Adalet/izle", "ended": false}, {"key": "mehmed-fetihler-sultani", "name": "Mehmed: Fetihler Sultanı", "channel": "TRT 1", "day": "Salı", "time": "20:00", "page": "https://www.trt1.com.tr/diziler/mehmed-fetihler-sultani", "ended": false}, {"key": "muhtemel-ask", "name": "Muhtemel Aşk", "channel": "Show TV", "day": "Perşembe", "time": "20:00", "page": "https://www.showtv.com.tr/dizi/tanitim/muhtemel-ask/3072", "ended": false}, {"key": "sahtekarlar", "name": "Sahtekârlar", "channel": "NOW", "day": "", "time": "20:00", "page": "https://www.nowtv.com.tr/Sahtekarlar/izle", "ended": false}, {"key": "sakincali", "name": "Sakıncalı", "channel": "NOW", "day": "", "time": "20:00", "page": "https://www.nowtv.com.tr/Sakincali/izle", "ended": false}, {"key": "sevdam-karadeniz", "name": "Sevdam Karadeniz", "channel": "NOW", "day": "Pazartesi", "time": "20:00", "page": "https://www.nowtv.com.tr/Sevdam-Karadeniz/izle", "ended": true}, {"key": "sevdan-bir-ates", "name": "Sevdan Bir Ateş", "channel": "Show TV", "day": "Çarşamba", "time": "20:00", "page": "https://www.showtv.com.tr/dizi/tanitim/sevdan-bir-ates/3087", "ended": false}, {"key": "tasacak-bu-deniz", "name": "Taşacak Bu Deniz", "channel": "TRT 1", "day": "Cuma", "time": "20:00", "page": "https://www.trt1.com.tr/diziler/tasacak-bu-deniz", "ended": false}, {"key": "teskilat", "name": "Teşkilat", "channel": "TRT 1", "day": "Pazar", "time": "20:00", "page": "https://www.trt1.com.tr/diziler/teskilat", "ended": false}, {"key": "uzak-sehir", "name": "Uzak Şehir", "channel": "Kanal D", "day": "Pazartesi", "time": "20:00", "page": "https://www.kanald.com.tr/uzak-sehir/bolumler", "ended": false}, {"key": "yeralti", "name": "Yeraltı", "channel": "NOW", "day": "Çarşamba", "time": "20:00", "page": "https://www.nowtv.com.tr/Yeralti/izle", "ended": false}, {"key": "omur-usta", "name": "Ömür Usta", "channel": "NOW", "day": "Pazar", "time": "20:00", "page": "https://www.nowtv.com.tr/Omur-Usta/izle", "ended": false}], "episodes": [{"id": "alti-ustu-istanbul-19", "series": "alti-ustu-istanbul", "seriesName": "Altı Üstü İstanbul", "channel": "atv", "num": 19, "airDate": "2026-11-02", "duration": "2:20:39", "desc": "Altı Üstü İstanbul 19. bölümü izlemek için tıkla. Altı Üstü İstanbul tüm bölümleri full HD ve kesintisiz! Tıkla Altı Üstü İstanbul yeni bölümü hemen izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=-tEdgnKXjjM"}, {"label": "atv.com.tr", "url": "https://www.atv.com.tr/alti-ustu-istanbul/19-bolum/izle"}], "status": "online", "thumb": "https://i.ytimg.com/vi/-tEdgnKXjjM/hqdefault.jpg", "addedAt": "2026-11-02T21:00:00+03:00"}, {"id": "alti-ustu-istanbul-18", "series": "alti-ustu-istanbul", "seriesName": "Altı Üstü İstanbul", "channel": "atv", "num": 18, "airDate": "2026-10-26", "duration": "2:23:35", "desc": "Altı Üstü İstanbul 18. bölümü izlemek için tıkla. Altı Üstü İstanbul tüm bölümleri full HD ve kesintisiz! Tıkla Altı Üstü İstanbul yeni bölümü hemen izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=9akdLu01JS0"}, {"label": "atv.com.tr", "url": "https://www.atv.com.tr/alti-ustu-istanbul/18-bolum/izle"}], "status": "online", "thumb": "https://i.ytimg.com/vi/9akdLu01JS0/hqdefault.jpg", "addedAt": "2026-10-26T21:00:00+03:00"}, {"id": "alti-ustu-istanbul-17", "series": "alti-ustu-istanbul", "seriesName": "Altı Üstü İstanbul", "channel": "atv", "num": 17, "airDate": "2026-10-19", "duration": "2:27:05", "desc": "Altı Üstü İstanbul 17. bölümü izlemek için tıkla. Altı Üstü İstanbul tüm bölümleri full HD ve kesintisiz! Tıkla Altı Üstü İstanbul yeni bölümü hemen izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=2-soXeNE4Rs"}, {"label": "atv.com.tr", "url": "https://www.atv.com.tr/alti-ustu-istanbul/17-bolum/izle"}], "status": "online", "thumb": "https://i.ytimg.com/vi/2-soXeNE4Rs/hqdefault.jpg", "addedAt": "2026-10-19T21:00:00+03:00"}, {"id": "anne-yarisi-6", "series": "anne-yarisi", "seriesName": "Anne Yarısı", "channel": "NOW", "num": 6, "airDate": "2026-10-27", "duration": "2:17:31", "desc": "Anne Yarısı 6. bölümü izlemek için tıkla. Zeynep’in kayboluşu her iki ailede de bomba etkisi yapar...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=MuWs4MvdIJo"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Anne-Yarisi/bolum/6"}], "status": "online", "thumb": "https://i.ytimg.com/vi/MuWs4MvdIJo/hqdefault.jpg", "addedAt": "2026-10-27T21:00:00+03:00"}, {"id": "anne-yarisi-5", "series": "anne-yarisi", "seriesName": "Anne Yarısı", "channel": "NOW", "num": 5, "airDate": "2026-10-20", "duration": "2:18:35", "desc": "Anne Yarısı 5. bölümü izlemek için tıkla. Anne Yarısı 5. Bölüm izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=X7a83AQabLY"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Anne-Yarisi/bolum/5"}], "status": "online", "thumb": "https://i.ytimg.com/vi/X7a83AQabLY/hqdefault.jpg", "addedAt": "2026-10-20T21:00:00+03:00"}, {"id": "anne-yarisi-4", "series": "anne-yarisi", "seriesName": "Anne Yarısı", "channel": "NOW", "num": 4, "airDate": "2026-10-13", "duration": "2:45:00", "desc": "Anne Yarısı 4. bölümü izlemek için tıkla. Zeynep'ten evlilik teklifi...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=QW8--61TRPo"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Anne-Yarisi/bolum/4"}], "status": "online", "thumb": "https://i.ytimg.com/vi/QW8--61TRPo/hqdefault.jpg", "addedAt": "2026-10-13T21:00:00+03:00"}, {"id": "ben-leman-13", "series": "ben-leman", "seriesName": "Ben Leman", "channel": "NOW", "num": 13, "airDate": "2026-10-07", "duration": "2:31:19", "desc": "Ben Leman 13. bölümü izlemek için tıkla. 13. Bölüm 5 gün boyunca sadece Disney+'ta!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=EYdI3XCB07U"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Ben-Leman/bolum/13"}], "status": "online", "thumb": "https://i.ytimg.com/vi/EYdI3XCB07U/hqdefault.jpg", "addedAt": "2026-10-07T21:00:00+03:00"}, {"id": "ben-leman-12", "series": "ben-leman", "seriesName": "Ben Leman", "channel": "NOW", "num": 12, "airDate": "2026-11-06", "duration": "2:08:06", "desc": "Ben Leman 12. bölümü izlemek için tıkla. Leman gerçeğe yaklaştıkça tehditlerin dozu artar...", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Ben-Leman/bolum/12"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/130807", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "ben-leman-11", "series": "ben-leman", "seriesName": "Ben Leman", "channel": "NOW", "num": 11, "airDate": "2026-11-06", "duration": "2:17:00", "desc": "Ben Leman 11. bölümü izlemek için tıkla. 11. Bölüm 5 gün boyunca Disney+'ta!", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Ben-Leman/bolum/11"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/130620", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "ben-onun-annesiyim-4", "series": "ben-onun-annesiyim", "seriesName": "Ben Onun Annesiyim", "channel": "NOW", "num": 4, "airDate": "2026-11-06", "duration": "1:45:50", "desc": "Ben Onun Annesiyim 4. bölümü izlemek için tıkla. Ayşe’nin kurduğu dünya, Pınar’ın dönüşüyle yerle bir olur...", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Ben-Onun-Annesiyim/bolum/4"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/129819", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "ben-onun-annesiyim-3", "series": "ben-onun-annesiyim", "seriesName": "Ben Onun Annesiyim", "channel": "NOW", "num": 3, "airDate": "2026-11-06", "duration": "1:46:45", "desc": "Ben Onun Annesiyim 3. bölümü izlemek için tıkla. Gerçekler birer birer açığa çıkmaya başlıyor...", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Ben-Onun-Annesiyim/bolum/3"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/129593", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "ben-onun-annesiyim-2", "series": "ben-onun-annesiyim", "seriesName": "Ben Onun Annesiyim", "channel": "NOW", "num": 2, "airDate": "2026-11-06", "duration": "1:55:08", "desc": "Ben Onun Annesiyim 2. bölümü izlemek için tıkla. Ayşe, kızına yaklaşmak için her adım attığında Suna’nın nefesi ensesindedir.", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Ben-Onun-Annesiyim/bolum/2"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/129418", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "daha-17-23", "series": "daha-17", "seriesName": "Daha 17", "channel": "Kanal D", "num": 23, "airDate": "2026-11-01", "duration": "2:40:04", "desc": "", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=a_CoBY7PkPg"}], "status": "online", "thumb": "https://i.ytimg.com/vi/a_CoBY7PkPg/hqdefault.jpg", "addedAt": "2026-11-01T21:00:00+03:00"}, {"id": "daha-17-22", "series": "daha-17", "seriesName": "Daha 17", "channel": "Kanal D", "num": 22, "airDate": "2026-10-25", "duration": "2:30:06", "desc": "Daha 17 22. b&#xF6;l&#xFC;m full izle - Daha 17 b&#xF6;l&#xFC;m kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=-czVP3lO4zk"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/daha-17/bolumler/daha-17-22-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/-czVP3lO4zk/hqdefault.jpg", "addedAt": "2026-10-25T21:00:00+03:00"}, {"id": "daha-17-21", "series": "daha-17", "seriesName": "Daha 17", "channel": "Kanal D", "num": 21, "airDate": "2026-10-18", "duration": "2:22:09", "desc": "Daha 17 21. b&#xF6;l&#xFC;m full izle - Daha 17 b&#xF6;l&#xFC;m kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=DvorGii3DRY"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/daha-17/bolumler/daha-17-21-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/DvorGii3DRY/hqdefault.jpg", "addedAt": "2026-10-18T21:00:00+03:00"}, {"id": "evlilik-guzeldir-9", "series": "evlilik-guzeldir", "seriesName": "Evlilik Güzeldir", "channel": "TRT 1", "num": 9, "airDate": "2026-11-02", "duration": "", "desc": "Murat’ın anlattığı gerçeklerle bildiklerini yeniden sorgulayan Zeynep, kalbinin sesini mi dinleyecek, verdiği sözün arkasında mı duracak? Murat’ı aramaya gel...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Thnl9pQLWdY"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/evlilik-guzeldir/bolum/9-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Thnl9pQLWdY/hqdefault.jpg", "addedAt": "2026-11-02T21:00:00+03:00"}, {"id": "evlilik-guzeldir-8", "series": "evlilik-guzeldir", "seriesName": "Evlilik Güzeldir", "channel": "TRT 1", "num": 8, "airDate": "2026-10-26", "duration": "", "desc": "David’in sözleri, Zeynep’in Murat’la ilgili şüphelerini artırırken saklanan gerçeklerin kapısını aralar. David’e yardım etmek için yeniden bir araya gelen Ze...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Du6BmiIDXR8"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/evlilik-guzeldir/bolum/8-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Du6BmiIDXR8/hqdefault.jpg", "addedAt": "2026-10-26T21:00:00+03:00"}, {"id": "evlilik-guzeldir-7", "series": "evlilik-guzeldir", "seriesName": "Evlilik Güzeldir", "channel": "TRT 1", "num": 7, "airDate": "2026-10-19", "duration": "", "desc": "Murat’ın yıllar sonra gelen itirafı, Zeynep’in duygularını karıştıracak. Evlilik teklifine aldığı cevapla umutlanan Ali Rıza, Zeynep’le hayalini kurduğu gele...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=VO__TBnqe80"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/evlilik-guzeldir/bolum/7-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/VO__TBnqe80/hqdefault.jpg", "addedAt": "2026-10-19T21:00:00+03:00"}, {"id": "gelin-507", "series": "gelin", "seriesName": "Gelin", "channel": "Kanal 7", "num": 507, "airDate": "2026-11-05", "duration": "1:40:22", "desc": "Gelin 507. Bölüm - 5 Kasım Perşembe - Kanal 7 Ekranlarının Sevilen Günlük Yapımı Gelin Dizisi 5 Kasım Perşembe Günü Yayınlanan Yeni Bölümü 507. Bölümüyle Son Bölümüyle İzle7.com'da...   hançer’i …", "sources": [{"label": "izle7.com", "url": "https://www.izle7.com/kanal7/izle-85083-gelin-507-bolum-5-kasim-persembe.html"}], "status": "online", "thumb": "https://izle7com.haber7.net/resize/1200x700/images/2026/11/4ae96946e16595760ef8cb358d956ee035ac0a90.jpg", "addedAt": "2026-11-05T21:00:00+03:00"}, {"id": "gelin-506", "series": "gelin", "seriesName": "Gelin", "channel": "Kanal 7", "num": 506, "airDate": "2026-11-04", "duration": "1:39:24", "desc": "Gelin 506. Bölüm - 4 Kasım Çarşamba - Kanal 7 Ekranlarının Sevilen Günlük Yapımı Gelin Dizisi 4 Kasım Çarşamba Günü Yayınlanan Yeni Bölümü 506. Bölümüyle Son Bölümüyle İzle7.com'da...   cihan’ın …", "sources": [{"label": "izle7.com", "url": "https://www.izle7.com/kanal7/izle-85062-gelin-506-bolum-4-kasim-carsamba.html"}], "status": "online", "thumb": "https://izle7com.haber7.net/resize/1200x700/images/2026/11/b75bb5d332cb173805bad5b80d76e801bfa33ea7.png", "addedAt": "2026-11-04T21:00:00+03:00"}, {"id": "gonul-dagi-229", "series": "gonul-dagi", "seriesName": "Gönül Dağı", "channel": "TRT 1", "num": 229, "airDate": "2026-10-31", "duration": "", "desc": "Zehra, Ali’nin itirafıyla kasabada kalmaya karar veriyor… Zehra, Ali’nin ilan-ı aşkını duyduktan sonra kasabada kalmaya karar verir. Ancak babasının hiç göre...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=XX8ZfWC9WFY"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/gonul-dagi/bolum/229-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/XX8ZfWC9WFY/hqdefault.jpg", "addedAt": "2026-10-31T21:00:00+03:00"}, {"id": "gonul-dagi-228", "series": "gonul-dagi", "seriesName": "Gönül Dağı", "channel": "TRT 1", "num": 228, "airDate": "2026-10-24", "duration": "", "desc": "Drone ihalesini hangi şirket kazanacak? Kaymakamlık bir “drone” (İnsansız Hava Aracı) ihalesi açmaya karar verir. Mahir bey ve TVR bu konuda hazırlıklara baş...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=dza4QiZ8zUc"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/gonul-dagi/bolum/228-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/dza4QiZ8zUc/hqdefault.jpg", "addedAt": "2026-10-24T21:00:00+03:00"}, {"id": "gonul-dagi-227", "series": "gonul-dagi", "seriesName": "Gönül Dağı", "channel": "TRT 1", "num": 227, "airDate": "2026-10-17", "duration": "", "desc": "Taner Ve Amcaoğullarının İcadını Kim Çaldı? TVR, Taner ile amcaoğullarının, Selma’nın verdiği fikirle AYR için yaptıkları yeni icadı çalar ve onu bir lansman...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=hpINYAAsutU"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/gonul-dagi/bolum/227-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/hpINYAAsutU/hqdefault.jpg", "addedAt": "2026-10-17T21:00:00+03:00"}, {"id": "guller-ve-gunahlar-39", "series": "guller-ve-gunahlar", "seriesName": "Güller ve Günahlar", "channel": "Kanal D", "num": 39, "airDate": "2026-10-24", "duration": "2:22:08", "desc": "", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=aof2pVUyy90"}], "status": "online", "thumb": "https://i.ytimg.com/vi/aof2pVUyy90/hqdefault.jpg", "addedAt": "2026-10-24T21:00:00+03:00"}, {"id": "guller-ve-gunahlar-38", "series": "guller-ve-gunahlar", "seriesName": "Güller ve Günahlar", "channel": "Kanal D", "num": 38, "airDate": "2026-10-17", "duration": "2:25:34", "desc": "G&#xFC;ller ve G&#xFC;nahlar 38. b&#xF6;l&#xFC;m full izle - G&#xFC;ller ve G&#xFC;nahlar otuz sekizinci b&#xF6;l&#xFC;m kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Zomn2cdGHII"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/guller-ve-gunahlar/bolumler/guller-ve-gunahlar-38-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Zomn2cdGHII/hqdefault.jpg", "addedAt": "2026-10-17T21:00:00+03:00"}, {"id": "guller-ve-gunahlar-37", "series": "guller-ve-gunahlar", "seriesName": "Güller ve Günahlar", "channel": "Kanal D", "num": 37, "airDate": "2026-10-10", "duration": "2:33:01", "desc": "G&#xFC;ller ve G&#xFC;nahlar 37. b&#xF6;l&#xFC;m full izle - G&#xFC;ller ve G&#xFC;nahlar otuz yedinci b&#xF6;l&#xFC;m kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=HwLZsexXux4"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/guller-ve-gunahlar/bolumler/guller-ve-gunahlar-37-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/HwLZsexXux4/hqdefault.jpg", "addedAt": "2026-10-10T21:00:00+03:00"}, {"id": "gunesin-dogdugu-yer-8", "series": "gunesin-dogdugu-yer", "seriesName": "Güneşin Doğduğu Yer", "channel": "atv", "num": 8, "airDate": "2026-11-05", "duration": "2:33:38", "desc": "Güneşin Doğduğu Yer 8. bölümü izlemek için tıkla. Güneşin Doğduğu Yer tüm bölümleri full HD ve kesintisiz! Tıkla Güneşin Doğduğu Yer yeni bölümü hemen izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=cH8c-s98v9Y"}, {"label": "atv.com.tr", "url": "https://www.atv.com.tr/gunesin-dogdugu-yer/8-bolum/izle"}], "status": "online", "thumb": "https://i.ytimg.com/vi/cH8c-s98v9Y/hqdefault.jpg", "addedAt": "2026-11-05T21:00:00+03:00"}, {"id": "gunesin-dogdugu-yer-7", "series": "gunesin-dogdugu-yer", "seriesName": "Güneşin Doğduğu Yer", "channel": "atv", "num": 7, "airDate": "2026-10-29", "duration": "2:39:37", "desc": "Güneşin Doğduğu Yer 7. bölümü izlemek için tıkla. Güneşin Doğduğu Yer tüm bölümleri full HD ve kesintisiz! Tıkla Güneşin Doğduğu Yer yeni bölümü hemen izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Hzs_IVl4bfo"}, {"label": "atv.com.tr", "url": "https://www.atv.com.tr/gunesin-dogdugu-yer/7-bolum/izle"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Hzs_IVl4bfo/hqdefault.jpg", "addedAt": "2026-10-29T21:00:00+03:00"}, {"id": "gunesin-dogdugu-yer-6", "series": "gunesin-dogdugu-yer", "seriesName": "Güneşin Doğduğu Yer", "channel": "atv", "num": 6, "airDate": "2026-10-22", "duration": "2:27:30", "desc": "Güneşin Doğduğu Yer 6. bölümü izlemek için tıkla. Güneşin Doğduğu Yer tüm bölümleri full HD ve kesintisiz! Tıkla Güneşin Doğduğu Yer yeni bölümü hemen izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=EN58gOx64qg"}, {"label": "atv.com.tr", "url": "https://www.atv.com.tr/gunesin-dogdugu-yer/6-bolum/izle"}], "status": "online", "thumb": "https://i.ytimg.com/vi/EN58gOx64qg/hqdefault.jpg", "addedAt": "2026-10-22T21:00:00+03:00"}, {"id": "halef-koklerin-cagrisi-41", "series": "halef-koklerin-cagrisi", "seriesName": "Halef: Köklerin Çağrısı", "channel": "NOW", "num": 41, "airDate": "2026-11-05", "duration": "2:18:19", "desc": "Halef: Köklerin Çağrısı 41. bölümü izlemek için tıkla. Halef: Köklerin Çağrısı 41. Bölüm özel sahneler yayında!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=WYgjQh-WqdE"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Halef-Koklerin-Cagrisi/bolum/41"}], "status": "online", "thumb": "https://i.ytimg.com/vi/WYgjQh-WqdE/hqdefault.jpg", "addedAt": "2026-11-05T21:00:00+03:00"}, {"id": "halef-koklerin-cagrisi-40", "series": "halef-koklerin-cagrisi", "seriesName": "Halef: Köklerin Çağrısı", "channel": "NOW", "num": 40, "airDate": "2026-10-22", "duration": "2:41:26", "desc": "Halef: Köklerin Çağrısı 40. bölümü izlemek için tıkla. Yıldız geri döndü!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=EIpPbc0hQR0"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Halef-Koklerin-Cagrisi/bolum/40"}], "status": "online", "thumb": "https://i.ytimg.com/vi/EIpPbc0hQR0/hqdefault.jpg", "addedAt": "2026-10-22T21:00:00+03:00"}, {"id": "halef-koklerin-cagrisi-39", "series": "halef-koklerin-cagrisi", "seriesName": "Halef: Köklerin Çağrısı", "channel": "NOW", "num": 39, "airDate": "2026-10-15", "duration": "2:21:39", "desc": "Halef: Köklerin Çağrısı 39. bölümü izlemek için tıkla. Sadullah Ağa’nın kızı Dilşad, Urfa’ya gelmiştir...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=KIbcQc-RNkc"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Halef-Koklerin-Cagrisi/bolum/39"}], "status": "online", "thumb": "https://i.ytimg.com/vi/KIbcQc-RNkc/hqdefault.jpg", "addedAt": "2026-10-15T21:00:00+03:00"}, {"id": "haysiyet-8", "series": "haysiyet", "seriesName": "Haysiyet", "channel": "Kanal D", "num": 8, "airDate": "2026-10-27", "duration": "2:22:06", "desc": "", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=_XGfmuKi7jM"}], "status": "online", "thumb": "https://i.ytimg.com/vi/_XGfmuKi7jM/hqdefault.jpg", "addedAt": "2026-10-27T21:00:00+03:00"}, {"id": "haysiyet-7", "series": "haysiyet", "seriesName": "Haysiyet", "channel": "Kanal D", "num": 7, "airDate": "2026-10-20", "duration": "2:25:19", "desc": "Haysiyet 7. b&#xF6;l&#xFC;m full izle - Haysiyet b&#xF6;l&#xFC;m kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=3zIVCxfbVwY"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/haysiyet/bolumler/haysiyet-7-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/3zIVCxfbVwY/hqdefault.jpg", "addedAt": "2026-10-20T21:00:00+03:00"}, {"id": "haysiyet-6", "series": "haysiyet", "seriesName": "Haysiyet", "channel": "Kanal D", "num": 6, "airDate": "2026-10-13", "duration": "2:16:47", "desc": "Haysiyet 6. b&#xF6;l&#xFC;m full izle - Haysiyet b&#xF6;l&#xFC;m kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=9F0-7J6tOQw"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/haysiyet/bolumler/haysiyet-6-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/9F0-7J6tOQw/hqdefault.jpg", "addedAt": "2026-10-13T21:00:00+03:00"}, {"id": "kod-adi-kirlangic-92", "series": "kod-adi-kirlangic", "seriesName": "Kod Adı Kırlangıç", "channel": "TRT 1", "num": 92, "airDate": "2026-10-31", "duration": "", "desc": "Annesine kavuşma umuduyla ormana giden Yiğit Efe, karşılaştığı acımasız olayla sarsılır. Fatih ve Melike Hoca gizemli notların arkasındaki ismi nihayet ortay...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=4PhUjLa6bQ4"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/kod-adi-kirlangic/bolum/92-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/4PhUjLa6bQ4/hqdefault.jpg", "addedAt": "2026-10-31T21:00:00+03:00"}, {"id": "kod-adi-kirlangic-91", "series": "kod-adi-kirlangic", "seriesName": "Kod Adı Kırlangıç", "channel": "TRT 1", "num": 91, "airDate": "2026-10-24", "duration": "", "desc": "Kırlangıçlar ve Kara Kobralar arasında okul koridorlarına taşan kavga, ortalığı birbirine katar. Ateş’in kargaşadan faydalanıp çaldığı dijital bellek, Hakan ...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=yQgxE7QIAuQ"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/kod-adi-kirlangic/bolum/91-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/yQgxE7QIAuQ/hqdefault.jpg", "addedAt": "2026-10-24T21:00:00+03:00"}, {"id": "kod-adi-kirlangic-90", "series": "kod-adi-kirlangic", "seriesName": "Kod Adı Kırlangıç", "channel": "TRT 1", "num": 90, "airDate": "2026-10-17", "duration": "", "desc": "Restoranda bulduğu gizemli not, Yiğit Efe’yi annesinin yaşadığına dair umutlandırır. Kırlangıç Tim dijital belleği ele geçirip görevi tamamlarken, notun ardı...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=i4WhHtBtlBM"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/kod-adi-kirlangic/bolum/90-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/i4WhHtBtlBM/hqdefault.jpg", "addedAt": "2026-10-17T21:00:00+03:00"}, {"id": "kurulus-orhan-26", "series": "kurulus-orhan", "seriesName": "Kuruluş Orhan", "channel": "atv", "num": 26, "airDate": "2026-11-06", "duration": "2:23:42", "desc": "Kuruluş Orhan 26. bölümü izlemek için tıkla. Kuruluş Orhan tüm bölümleri full HD ve kesintisiz! Tıkla Kuruluş Orhan yeni bölümü hemen izle!", "sources": [{"label": "atv.com.tr", "url": "https://www.atv.com.tr/kurulus-orhan/26-bolum/izle"}], "status": "online", "thumb": "https://iaatv.tmgrup.com.tr/aa2886/959/566/0/0/2048/1209?u=https://iatv.tmgrup.com.tr/2026/06/09/kurulus-orhan-1780996772588.jpg", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "kurulus-orhan-25", "series": "kurulus-orhan", "seriesName": "Kuruluş Orhan", "channel": "atv", "num": 25, "airDate": "2026-10-30", "duration": "2:17:02", "desc": "Kuruluş Orhan 25. bölümü izlemek için tıkla. Kuruluş Orhan tüm bölümleri full HD ve kesintisiz! Tıkla Kuruluş Orhan yeni bölümü hemen izle!", "sources": [{"label": "atv.com.tr", "url": "https://www.atv.com.tr/kurulus-orhan/25-bolum/izle"}], "status": "online", "thumb": "https://iaatv.tmgrup.com.tr/9d25c6/959/566/0/0/2048/1209?u=https://iatv.tmgrup.com.tr/2026/06/02/kurulus-orhan-1780406754184.jpg", "addedAt": "2026-10-30T21:00:00+03:00"}, {"id": "kurulus-orhan-24", "series": "kurulus-orhan", "seriesName": "Kuruluş Orhan", "channel": "atv", "num": 24, "airDate": "2026-10-23", "duration": "2:17:07", "desc": "Kuruluş Orhan 24. bölümü izlemek için tıkla. Kuruluş Orhan tüm bölümleri full HD ve kesintisiz! Tıkla Kuruluş Orhan yeni bölümü hemen izle!", "sources": [{"label": "atv.com.tr", "url": "https://www.atv.com.tr/kurulus-orhan/24-bolum/izle"}], "status": "online", "thumb": "https://iaatv.tmgrup.com.tr/ee256f/959/566/0/0/2048/1209?u=https://iatv.tmgrup.com.tr/2026/05/20/kurulus-orhan-1779266422927.jpg", "addedAt": "2026-10-23T21:00:00+03:00"}, {"id": "kiskanmak-33", "series": "kiskanmak", "seriesName": "Kıskanmak", "channel": "NOW", "num": 33, "airDate": "2026-11-06", "duration": "2:15:26", "desc": "Kıskanmak 33. bölümü izlemek için tıkla. 33. Bölüm 5 gün boyunca sadece Disney+'ta!", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Kiskanmak/bolum/33"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/134642", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "kiskanmak-32", "series": "kiskanmak", "seriesName": "Kıskanmak", "channel": "NOW", "num": 32, "airDate": "2026-11-06", "duration": "2:15:22", "desc": "Kıskanmak 32. bölümü izlemek için tıkla. Halit,Nalan’a Nüzhet’le ilgili sırrı açıklar...", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Kiskanmak/bolum/32"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/134478", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "kiskanmak-31", "series": "kiskanmak", "seriesName": "Kıskanmak", "channel": "NOW", "num": 31, "airDate": "2026-11-06", "duration": "2:15:15", "desc": "Kıskanmak 31. bölümü izlemek için tıkla. TV yayınından sonra 5 gün boyunca Disney+'ta!", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Kiskanmak/bolum/31"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/134311", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "kizilcik-serbeti-144", "series": "kizilcik-serbeti", "seriesName": "Kızılcık Şerbeti", "channel": "Show TV", "num": 144, "airDate": "2026-10-23", "duration": "2:17:43", "desc": "Kızılcık Şerbeti'nin 144. Bölümünde; Başak ve Fatih’in bebeklerini kaybetmesi Ünal ailesini yasa boğar. Başak’ın hastalığını öğrenen Fatih, Tuncay’ın desteğiyle zamanla yarışır. Abdullah’ın yeniden ayağa kalkabilmesi içi", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=6tcZRL_2OUs"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/kizilcik-serbeti-sezon-5-bolum-144-izle/135617"}], "status": "online", "thumb": "https://i.ytimg.com/vi/6tcZRL_2OUs/hqdefault.jpg", "addedAt": "2026-10-23T21:00:00+03:00"}, {"id": "kizilcik-serbeti-143", "series": "kizilcik-serbeti", "seriesName": "Kızılcık Şerbeti", "channel": "Show TV", "num": 143, "airDate": "2026-10-16", "duration": "2:15:57", "desc": "Kızılcık Şerbeti'nin 143. Bölümünde; Ünal Köşkü’nü, Asude ile Asil’in aldığını öğrenmek, Abdullah’a ağır bir darbe vurur. Taşınmak üzere hazırlıkları başlatan Abdullah, yaşadığı çaresizlik karşısında daha fazla dayanamay", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=PYbFV72J65Q"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/kizilcik-serbeti-sezon-5-bolum-143-izle/135444"}], "status": "online", "thumb": "https://i.ytimg.com/vi/PYbFV72J65Q/hqdefault.jpg", "addedAt": "2026-10-16T21:00:00+03:00"}, {"id": "kizilcik-serbeti-142", "series": "kizilcik-serbeti", "seriesName": "Kızılcık Şerbeti", "channel": "Show TV", "num": 142, "airDate": "2026-10-09", "duration": "2:17:43", "desc": "Kızılcık Şerbeti'nin 142. Bölümünde; Lider’in, Kıvılcım’a gösterdiği yakın ilgi ve Ömer’e karşı takındığı tavır;  Ömer’i çileden çıkarır. Düğün organizasyonunda patlak veren kriz, Ömer ve Lider arasındaki gerilimi tırman", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=IBUCAD6vrLw"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/kizilcik-serbeti-sezon-5-bolum-142-izle/135304"}], "status": "online", "thumb": "https://i.ytimg.com/vi/IBUCAD6vrLw/hqdefault.jpg", "addedAt": "2026-10-09T21:00:00+03:00"}, {"id": "leyla-hayat-ask-adalet-37", "series": "leyla-hayat-ask-adalet", "seriesName": "Leyla: Hayat, Aşk, Adalet", "channel": "NOW", "num": 37, "airDate": "2026-11-06", "duration": "2:27:03", "desc": "Leyla: Hayat… Aşk… Adalet... 37. bölümü izlemek için tıkla. Nur, Vedat’ı ölümden kurtarmasına rağmen olağan şüpheli olmaktan kurtulamaz", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Leyla-Hayat-Ask-Adalet/bolum/37"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/126934", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "leyla-hayat-ask-adalet-36", "series": "leyla-hayat-ask-adalet", "seriesName": "Leyla: Hayat, Aşk, Adalet", "channel": "NOW", "num": 36, "airDate": "2026-11-06", "duration": "2:18:00", "desc": "Leyla: Hayat… Aşk… Adalet... 36. bölümü izlemek için tıkla. Leyla ve Nur karşı karşıya!", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Leyla-Hayat-Ask-Adalet/bolum/36"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/126802", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "leyla-hayat-ask-adalet-35", "series": "leyla-hayat-ask-adalet", "seriesName": "Leyla: Hayat, Aşk, Adalet", "channel": "NOW", "num": 35, "airDate": "2026-11-06", "duration": "2:29:37", "desc": "Leyla: Hayat… Aşk… Adalet... 35. bölümü izlemek için tıkla. Nur ve Leyla, Civan’ı kurtarmak için omuz omuza mücadele ediyor...", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Leyla-Hayat-Ask-Adalet/bolum/35"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/126508", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "mehmed-fetihler-sultani-90", "series": "mehmed-fetihler-sultani", "seriesName": "Mehmed: Fetihler Sultanı", "channel": "TRT 1", "num": 90, "airDate": "2026-10-27", "duration": "", "desc": "Mirza Uğurlu’yu esir alan Sultan Mehmed, Uzun Hasan’a gönderdiği mektupla hem barışın şartlarını ortaya koyar hem de Roma seferindeki kararlılığını gösterir....", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=G3pXjEPt0xE"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/mehmed-fetihler-sultani/bolum/90-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/G3pXjEPt0xE/hqdefault.jpg", "addedAt": "2026-10-27T21:00:00+03:00"}, {"id": "mehmed-fetihler-sultani-89", "series": "mehmed-fetihler-sultani", "seriesName": "Mehmed: Fetihler Sultanı", "channel": "TRT 1", "num": 89, "airDate": "2026-10-20", "duration": "", "desc": "Uzun Hasan&#x27;ın Karamanoğlu İshak&#x27;ı himayesine alması, Osmanlı ile Akkoyunlu arasındaki gerilimi giderek artırmaktadır. Roma ülküsünü ertelemek zorunda kalan S...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=WJu3N31WVIE"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/mehmed-fetihler-sultani/bolum/89-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/WJu3N31WVIE/hqdefault.jpg", "addedAt": "2026-10-20T21:00:00+03:00"}, {"id": "mehmed-fetihler-sultani-88", "series": "mehmed-fetihler-sultani", "seriesName": "Mehmed: Fetihler Sultanı", "channel": "TRT 1", "num": 88, "airDate": "2026-10-13", "duration": "", "desc": "Uzun Hasan’ın Karamanoğlu İshak’ı himayesine alması, Osmanlı ile Akkoyunlu’yu artık savaşın eşiğine getirmiştir. Roma ülküsünü ertelemek zorunda kalan Sultan...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=v-72BI0GTj0"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/mehmed-fetihler-sultani/bolum/88-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/v-72BI0GTj0/hqdefault.jpg", "addedAt": "2026-10-13T21:00:00+03:00"}, {"id": "muhtemel-ask-20", "series": "muhtemel-ask", "seriesName": "Muhtemel Aşk", "channel": "Show TV", "num": 20, "airDate": "2026-11-05", "duration": "2:25:55", "desc": "Muhtemel Aşk'ın 20. Bölümünde; Sekiz yıl sonra Kader’in dönüşü, Emindağ ailesinde sevinç kadar büyük bir yüzleşmeyi de beraberinde getirir. Saklanan sırlar bir bir açığa çıkarken Özlem’in itirafı ve Defne’nin ailesiyle y", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=AvhXk8j-Vh4"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/muhtemel-ask-sezon-1-bolum-20-izle/135896"}], "status": "online", "thumb": "https://i.ytimg.com/vi/AvhXk8j-Vh4/hqdefault.jpg", "addedAt": "2026-11-05T21:00:00+03:00"}, {"id": "muhtemel-ask-19", "series": "muhtemel-ask", "seriesName": "Muhtemel Aşk", "channel": "Show TV", "num": 19, "airDate": "2026-10-22", "duration": "2:28:17", "desc": "Muhtemel Aşk'ın 19. Bölümünde; Kadir’in gözaltına alınmasıyla sarsılan Defne, bir yandan sevdiği adamı kurtarmaya çalışırken diğer yandan babalık testiyle ilgili gerçeğin peşine düşer. Tolga’nın suçlamaları ve giderek bü", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=VojwZ6j7Cdk"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/muhtemel-ask-sezon-1-bolum-19-izle/135580"}], "status": "online", "thumb": "https://i.ytimg.com/vi/VojwZ6j7Cdk/hqdefault.jpg", "addedAt": "2026-10-22T21:00:00+03:00"}, {"id": "muhtemel-ask-18", "series": "muhtemel-ask", "seriesName": "Muhtemel Aşk", "channel": "Show TV", "num": 18, "airDate": "2026-10-15", "duration": "2:31:26", "desc": "Muhtemel Aşk'ın 18. Bölümünde; Tolga ve Özlem’in düğünü, Ali’nin Tolga’ya babası olduğunu açıklamasıyla beklenmedik bir krize dönüşür. Ancak asıl şok, Tolga’nın daha önce yaptırdığı babalık testiyle yeni sonuç arasındaki", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=ugqBgA3T3IA"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/muhtemel-ask-sezon-1-bolum-18-izle/135412"}], "status": "online", "thumb": "https://i.ytimg.com/vi/ugqBgA3T3IA/hqdefault.jpg", "addedAt": "2026-10-15T21:00:00+03:00"}, {"id": "sahtekarlar-22", "series": "sahtekarlar", "seriesName": "Sahtekârlar", "channel": "NOW", "num": 22, "airDate": "2026-11-06", "duration": "2:15:45", "desc": "Sahtekarlar 22. bölümü izlemek için tıkla. Suçlular cezasını çekip iyiler kazanabilecek mi?", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sahtekarlar/bolum/22"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/133088", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "sahtekarlar-21", "series": "sahtekarlar", "seriesName": "Sahtekârlar", "channel": "NOW", "num": 21, "airDate": "2026-11-06", "duration": "2:22:06", "desc": "Sahtekarlar 21. bölümü izlemek için tıkla. Ertan’ın izini sürdüğü ipuçları onu giderek daha karanlık bir noktaya götürüyor...", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sahtekarlar/bolum/21"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/132887", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "sahtekarlar-20", "series": "sahtekarlar", "seriesName": "Sahtekârlar", "channel": "NOW", "num": 20, "airDate": "2026-11-06", "duration": "2:15:37", "desc": "Sahtekarlar 20. bölümü izlemek için tıkla. 20. Bölüm 5. gün boyunca Disney+'ta!", "sources": [{"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sahtekarlar/bolum/20"}], "status": "online", "thumb": "https://tpsbayxekmes.merlincdn.net/i/sm/132706", "addedAt": "2026-11-06T21:00:00+03:00"}, {"id": "sakincali-5", "series": "sakincali", "seriesName": "Sakıncalı", "channel": "NOW", "num": 5, "airDate": "2026-10-07", "duration": "2:15:50", "desc": "Sakıncalı 5. bölümü izlemek için tıkla. Süreyya'dan Nazım’ı, Faysal’ı ve Çetin’i şok edecek hamle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Dm9bCDN2YWo"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sakincali/bolum/5"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Dm9bCDN2YWo/hqdefault.jpg", "addedAt": "2026-10-07T21:00:00+03:00"}, {"id": "sakincali-4", "series": "sakincali", "seriesName": "Sakıncalı", "channel": "NOW", "num": 4, "airDate": "2026-10-07", "duration": "2:14:14", "desc": "Sakıncalı 4. bölümü izlemek için tıkla. Süreyya için umudun başlangıcı...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=bcplFrj5_jQ"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sakincali/bolum/4"}], "status": "online", "thumb": "https://i.ytimg.com/vi/bcplFrj5_jQ/hqdefault.jpg", "addedAt": "2026-10-07T21:00:00+03:00"}, {"id": "sakincali-3", "series": "sakincali", "seriesName": "Sakıncalı", "channel": "NOW", "num": 3, "airDate": "2026-10-07", "duration": "2:10:15", "desc": "Sakıncalı 3. bölümü izlemek için tıkla. Süreyya, tüm ipleri eline geçirdiğinde ise onu bir sürpriz beklemektedir...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=sQmBxuKT0Ms"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sakincali/bolum/3"}], "status": "online", "thumb": "https://i.ytimg.com/vi/sQmBxuKT0Ms/hqdefault.jpg", "addedAt": "2026-10-07T21:00:00+03:00"}, {"id": "sevdam-karadeniz-4", "series": "sevdam-karadeniz", "seriesName": "Sevdam Karadeniz", "channel": "NOW", "num": 4, "airDate": "2026-11-02", "duration": "2:32:02", "desc": "Sevdam Karadeniz 4. bölümü izlemek için tıkla. Kuzey’in Zeyşan’a teklifiyle yeni bir dönemece girilir...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=LpuYK9vHjU4"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sevdam-Karadeniz/bolum/4"}], "status": "online", "thumb": "https://i.ytimg.com/vi/LpuYK9vHjU4/hqdefault.jpg", "addedAt": "2026-11-02T21:00:00+03:00"}, {"id": "sevdam-karadeniz-3", "series": "sevdam-karadeniz", "seriesName": "Sevdam Karadeniz", "channel": "NOW", "num": 3, "airDate": "2026-10-26", "duration": "2:35:56", "desc": "Sevdam Karadeniz 3. bölümü izlemek için tıkla. Kuzey ile Zeyşan’ı büyük bir sürpriz bekler...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=tJnI2I8Qa3Y"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sevdam-Karadeniz/bolum/3"}], "status": "online", "thumb": "https://i.ytimg.com/vi/tJnI2I8Qa3Y/hqdefault.jpg", "addedAt": "2026-10-26T21:00:00+03:00"}, {"id": "sevdam-karadeniz-2", "series": "sevdam-karadeniz", "seriesName": "Sevdam Karadeniz", "channel": "NOW", "num": 2, "airDate": "2026-10-19", "duration": "2:30:43", "desc": "Sevdam Karadeniz 2. bölümü izlemek için tıkla. Sevdam Karadeniz 2. Bölüm izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=xzjCSFkpHvQ"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Sevdam-Karadeniz/bolum/2"}], "status": "online", "thumb": "https://i.ytimg.com/vi/xzjCSFkpHvQ/hqdefault.jpg", "addedAt": "2026-10-19T21:00:00+03:00"}, {"id": "sevdan-bir-ates-9", "series": "sevdan-bir-ates", "seriesName": "Sevdan Bir Ateş", "channel": "Show TV", "num": 9, "airDate": "2026-11-04", "duration": "2:36:56", "desc": "Kızına kavuşmanın mutluluğunu yaşayan Mirza, ondan yıllarca mahrum bırakıldığı için Leyla’yı affedemez. Leyla ise geçmişte kendisine inanmayan Mirza’ya karşı boşanma kararından vazgeçmez. Mirza, Hüma’nın kızı olduğunu ar", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=ppltETIzVgk"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/sevdan-bir-ates-sezon-1-bolum-9-izle/135860"}], "status": "online", "thumb": "https://i.ytimg.com/vi/ppltETIzVgk/hqdefault.jpg", "addedAt": "2026-11-04T21:00:00+03:00"}, {"id": "sevdan-bir-ates-8", "series": "sevdan-bir-ates", "seriesName": "Sevdan Bir Ateş", "channel": "Show TV", "num": 8, "airDate": "2026-10-28", "duration": "2:24:44", "desc": "Leyla, Kozaklı Konağı’ndan ayrıldıktan sonra Hüma’yla birlikte kendi hayatını kurmaya çalışırken yoklukla sınanır. Mirza ise Leyla’nın gidişini kabullenemez; onlardan uzak durmaya çalışsa da kendini sürekli anne kızın ya", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=t3F6qgsNOVs"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/sevdan-bir-ates-sezon-1-bolum-8-izle/135714"}], "status": "online", "thumb": "https://i.ytimg.com/vi/t3F6qgsNOVs/hqdefault.jpg", "addedAt": "2026-10-28T21:00:00+03:00"}, {"id": "sevdan-bir-ates-7", "series": "sevdan-bir-ates", "seriesName": "Sevdan Bir Ateş", "channel": "Show TV", "num": 7, "airDate": "2026-10-21", "duration": "2:26:43", "desc": "Sevdan Bir Ateş'in 7. Bölümünde; Hüma’nın geçmişte kendilerini konaktan gönderen kişiye dair işaretleri, Mirza’nın annesiyle ilgili büyük bir şüpheye düşmesine sebep olur. Ancak yıllardır tanıdığı annesinin böylesine büy", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=fIcHw0Gj4uY"}, {"label": "showtv.com.tr", "url": "https://www.showtv.com.tr/dizi/tum_bolumler/sevdan-bir-ates-sezon-1-bolum-7-izle/135545"}], "status": "online", "thumb": "https://i.ytimg.com/vi/fIcHw0Gj4uY/hqdefault.jpg", "addedAt": "2026-10-21T21:00:00+03:00"}, {"id": "tasacak-bu-deniz-36", "series": "tasacak-bu-deniz", "seriesName": "Taşacak Bu Deniz", "channel": "TRT 1", "num": 36, "airDate": "2026-10-30", "duration": "", "desc": "Yirmi yıldır yaşadığı her acıyı derinliklerine gömen Esme, tam da dağını ve ışığını bulmuşken, ailesine kavuşmuşken, celladının zindanından kurtulmasıyla tük...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=FZc_XS2ojWA"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/tasacak-bu-deniz/bolum/36-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/FZc_XS2ojWA/hqdefault.jpg", "addedAt": "2026-10-30T21:00:00+03:00"}, {"id": "tasacak-bu-deniz-35", "series": "tasacak-bu-deniz", "seriesName": "Taşacak Bu Deniz", "channel": "TRT 1", "num": 35, "airDate": "2026-10-23", "duration": "", "desc": "Kızının satıldığı parayı harcadığını öğrenince çok sarsılan Esme, Şerif’e boyun eğmeme kararıyla ayağa kalkar. Gelinliğiyle hapse girecek olsa da o düğünde A...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=_rRGZAWOmZg"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/tasacak-bu-deniz/bolum/35-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/_rRGZAWOmZg/hqdefault.jpg", "addedAt": "2026-10-23T21:00:00+03:00"}, {"id": "tasacak-bu-deniz-34", "series": "tasacak-bu-deniz", "seriesName": "Taşacak Bu Deniz", "channel": "TRT 1", "num": 34, "airDate": "2026-10-16", "duration": "", "desc": "Adil ve Esme’nin boşanma duruşması, ikisinin ilk tanıştıkları gün olan 19 Ekim’e denk gelir. İki sevdalı, daha nikah yüzüklerine doyamadan Koçari ailesini ku...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=3aZKfH4pzsM"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/tasacak-bu-deniz/bolum/34-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/3aZKfH4pzsM/hqdefault.jpg", "addedAt": "2026-10-16T21:00:00+03:00"}, {"id": "teskilat-191", "series": "teskilat", "seriesName": "Teşkilat", "channel": "TRT 1", "num": 191, "airDate": "2026-11-01", "duration": "", "desc": "Altay, Barlas’ı köşeye sıkıştırmıştır. Her ne kadar Altay, onun Öğretmen olduğuna emin olsa da Barlas oyunlarına devam etmektedir. Yahya’nın Bahar’ı yanına a...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=9l-R5Zx9QRQ"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/teskilat/bolum/191-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/9l-R5Zx9QRQ/hqdefault.jpg", "addedAt": "2026-11-01T21:00:00+03:00"}, {"id": "teskilat-190", "series": "teskilat", "seriesName": "Teşkilat", "channel": "TRT 1", "num": 190, "airDate": "2026-10-25", "duration": "", "desc": "Azra, Altay ve Teşkilat’ı yarı yolda bırakmıştır. Altay ona daha yeni güvenmeye başlamışken Azra’nın bu adımı her şeyi değiştirir. Azra, yaptığı hamlenin son...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=7rIIcSUGQ3o"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/teskilat/bolum/190-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/7rIIcSUGQ3o/hqdefault.jpg", "addedAt": "2026-10-25T21:00:00+03:00"}, {"id": "teskilat-189", "series": "teskilat", "seriesName": "Teşkilat", "channel": "TRT 1", "num": 189, "airDate": "2026-10-18", "duration": "", "desc": "Altay ve Teşkilat büyük bir oyunla karşı karşıya kalmıştır. Düşman kendini güvende hissederken Teşkilat oyunu kendi lehine çevirecektir. Korkut ve Hamdi Şahi...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=INNpRBj9ZgY"}, {"label": "trt1.com.tr", "url": "https://www.trt1.com.tr/diziler/teskilat/bolum/189-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/INNpRBj9ZgY/hqdefault.jpg", "addedAt": "2026-10-18T21:00:00+03:00"}, {"id": "uzak-sehir-71", "series": "uzak-sehir", "seriesName": "Uzak Şehir", "channel": "Kanal D", "num": 71, "airDate": "2026-11-02", "duration": "2:19:09", "desc": "", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=v458hdhiMrU"}], "status": "online", "thumb": "https://i.ytimg.com/vi/v458hdhiMrU/hqdefault.jpg", "addedAt": "2026-11-02T21:00:00+03:00"}, {"id": "uzak-sehir-70", "series": "uzak-sehir", "seriesName": "Uzak Şehir", "channel": "Kanal D", "num": 70, "airDate": "2026-10-26", "duration": "2:17:12", "desc": "Uzak &#x15E;ehir 70. b&#xF6;l&#xFC;m full izle - Uzak &#x15E;ehir yetmi&#x15F;inci b&#xF6;l&#xFC;m&#xFC; kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=A3UwV5I_ZrY"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/uzak-sehir/bolumler/uzak-sehir-70-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/A3UwV5I_ZrY/hqdefault.jpg", "addedAt": "2026-10-26T21:00:00+03:00"}, {"id": "uzak-sehir-69", "series": "uzak-sehir", "seriesName": "Uzak Şehir", "channel": "Kanal D", "num": 69, "airDate": "2026-10-19", "duration": "2:17:38", "desc": "Uzak &#x15E;ehir 69. b&#xF6;l&#xFC;m full izle - Uzak &#x15E;ehir altm&#x131;&#x15F; dokuzuncu b&#xF6;l&#xFC;m&#xFC; kesintisiz tek part olarak full izleyebilirsiniz", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=bT_QoPn5nuI"}, {"label": "kanald.com.tr", "url": "https://www.kanald.com.tr/uzak-sehir/bolumler/uzak-sehir-69-bolum"}], "status": "online", "thumb": "https://i.ytimg.com/vi/bT_QoPn5nuI/hqdefault.jpg", "addedAt": "2026-10-19T21:00:00+03:00"}, {"id": "yeralti-21", "series": "yeralti", "seriesName": "Yeraltı", "channel": "NOW", "num": 21, "airDate": "2026-11-04", "duration": "2:10:47", "desc": "Yeraltı 21. bölümü izlemek için tıkla. Peki Bozo, Rüzgar ve Haydar Ali, kendilerine kurulan bu büyük tuzağın arkasındaki asıl isme ulaşabilecek mi?", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=23mAJLrcloM"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Yeralti/bolum/21"}], "status": "online", "thumb": "https://i.ytimg.com/vi/23mAJLrcloM/hqdefault.jpg", "addedAt": "2026-11-04T21:00:00+03:00"}, {"id": "yeralti-20", "series": "yeralti", "seriesName": "Yeraltı", "channel": "NOW", "num": 20, "airDate": "2026-10-28", "duration": "2:19:05", "desc": "Yeraltı 20. bölümü izlemek için tıkla. ", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=hthtghc4xmI"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Yeralti/bolum/20"}], "status": "online", "thumb": "https://i.ytimg.com/vi/hthtghc4xmI/hqdefault.jpg", "addedAt": "2026-10-28T21:00:00+03:00"}, {"id": "yeralti-19", "series": "yeralti", "seriesName": "Yeraltı", "channel": "NOW", "num": 19, "airDate": "2026-10-21", "duration": "2:18:20", "desc": "Yeraltı 19. bölümü izlemek için tıkla. Yeraltı 19. Bölüm izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=_fd4ndUm3VY"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Yeralti/bolum/19"}], "status": "online", "thumb": "https://i.ytimg.com/vi/_fd4ndUm3VY/hqdefault.jpg", "addedAt": "2026-10-21T21:00:00+03:00"}, {"id": "omur-usta-6", "series": "omur-usta", "seriesName": "Ömür Usta", "channel": "NOW", "num": 6, "airDate": "2026-11-01", "duration": "2:20:05", "desc": "Ömür Usta 6. bölümü izlemek için tıkla. Ömür, Nevra’nın evini basar ve ona hayatının dersini verir. İki kadın arasında artık büyük bir savaş başlamıştır. Karısının yaptıkları Tunç’un sabrını iyice tüketirken radikal bir ", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Luv3Mw16B8w"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Omur-Usta/bolum/6"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Luv3Mw16B8w/hqdefault.jpg", "addedAt": "2026-11-01T21:00:00+03:00"}, {"id": "omur-usta-5", "series": "omur-usta", "seriesName": "Ömür Usta", "channel": "NOW", "num": 5, "airDate": "2026-10-25", "duration": "2:31:20", "desc": "Ömür Usta 5. bölümü izlemek için tıkla. Ömür Usta yeni bölüm izle!", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=eC9btMp6n0w"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Omur-Usta/bolum/5"}], "status": "online", "thumb": "https://i.ytimg.com/vi/eC9btMp6n0w/hqdefault.jpg", "addedAt": "2026-10-25T21:00:00+03:00"}, {"id": "omur-usta-4", "series": "omur-usta", "seriesName": "Ömür Usta", "channel": "NOW", "num": 4, "airDate": "2026-10-18", "duration": "2:17:13", "desc": "Ömür Usta 4. bölümü izlemek için tıkla. Nevra’nın intikam hırsı...", "sources": [{"label": "YouTube", "url": "https://www.youtube.com/watch?v=Syu5zLp9260"}, {"label": "nowtv.com.tr", "url": "https://www.nowtv.com.tr/Omur-Usta/bolum/4"}], "status": "online", "thumb": "https://i.ytimg.com/vi/Syu5zLp9260/hqdefault.jpg", "addedAt": "2026-10-18T21:00:00+03:00"}], "updatedAt": "2026-11-06T00:00:00+03:00"};</script>
+<script>
+const I={
+  play:(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>`,
+  heart:on=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="${on?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>`,
+  bell:on=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="${on?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0" fill="none"/></svg>`,
+  chat:'<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  clock:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  ext:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  plus:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
+};
+const $=(s,el=document)=>el.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY=86400000, DN=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'], DS=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+const CC={'atv':'--c-atv','Show TV':'--c-show','Star TV':'--c-star','Kanal D':'--c-kd','NOW':'--c-now','TRT 1':'--c-trt','Kanal 7':'--c-k7'};
+const chTag=c=>`<span class="ch" style="--cc:var(${CC[c]||'--muted'})">${esc(c)}</span>`;
+
+const S={view:'home',channel:'Tümü',mine:true,day:null,series:[],episodes:[],tonight:[],requests:[],q:'',comments:[],meta:null,
+  me:{follows:{},likes:{},watched:{},lastSeen:''},loaded:false,dbOk:null,uid:null,db:null,user:null,open:null,names:{}};
+try{const v=localStorage.getItem('bv2-view'); if(v) S.view=v; if(localStorage.getItem('bv2-mine')==='0') S.mine=false; const m=JSON.parse(localStorage.getItem('bv2-me')||'null'); if(m) S.me=Object.assign({follows:{},likes:{},watched:{}},m);}catch(e){}
+
+const today0=()=>{const d=new Date(); d.setHours(0,0,0,0); return d;};
+const pd=s=>{const [y,m,d]=String(s).split('-').map(Number); return new Date(y,(m||1)-1,d||1);};
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const daysAgo=s=>Math.round((today0()-pd(s))/DAY);
+function rel(s){const n=daysAgo(s); if(n<=0) return 'Bugün'; if(n===1) return 'Dün'; if(n<7) return DN[pd(s).getDay()]; return pd(s).toLocaleDateString('tr-TR',{day:'numeric',month:'long'});}
+const online=e=>e.status!=='pending';
+const isFresh=e=>online(e)&&daysAgo(e.airDate)<=3&&!S.me.watched[e.id];
+const sBy=k=>S.series.find(s=>s.key===k)||{};
+const epsOf=k=>S.episodes.filter(e=>e.series===k).sort((a,b)=>b.num-a.num);
+const cCount=id=>S.comments.filter(c=>c.ep===id).length;
+const thumbOf=k=>{const e=epsOf(k).find(online)||epsOf(k)[0]; return e?e.thumb:'';};
+const chF=l=>S.channel==='Tümü'?l:l.filter(x=>x.channel===S.channel);
+const weekEps=()=>S.episodes.filter(e=>daysAgo(e.airDate)>=0&&daysAgo(e.airDate)<7);
+const hasFollows=()=>Object.keys(S.me.follows).length>0;
+const mineOn=()=>S.mine&&hasFollows();
+const mE=l=>mineOn()?l.filter(e=>S.me.follows[e.series]):l;
+const mS=l=>mineOn()?l.filter(s=>S.me.follows[s.key]):l;
+const mineToggle=()=>hasFollows()?`<div class="chips" style="padding-top:4px"><button class="chip" data-mine="1" aria-pressed="${S.mine}">Takip ettiklerim</button><button class="chip" data-mine="0" aria-pressed="${!S.mine}">Tüm kanallar</button></div>`:'';
+const discoverCard=()=>`<section class="sec"><div class="prog" style="background:var(--grad)"><div><h3>İzlediğin dizileri seç</h3><p>Takip ettiğin diziler burada toplanır, yeni bölümleri düşünce öne çıkar. Şu an hiç dizi takip etmiyorsun.</p><button data-v="all">Dizilere göz at</button></div></div></section>`;
+
+/* header */
+(function(){const d=new Date(), h=d.getHours();
+  $('#hi').textContent=h<6?'İyi geceler':h<12?'Günaydın':h<18?'İyi günler':'İyi akşamlar';
+  $('#datebox').innerHTML=`<small>${DS[d.getDay()]}</small><b>${d.getDate()}</b>`;})();
+
+/* ---------- pieces ---------- */
+function epCard(e){
+  const f=!!S.me.follows[e.series],l=!!S.me.likes[e.series],w=!!S.me.watched[e.id],n=cCount(e.id),src=(e.sources||[])[0];
+  const pend=!online(e);
+  return `<article class="card">
+    <button class="thumb ${w?'watched':''} ${pend?'pending':''}" data-ep="${esc(e.id)}" aria-label="${esc(e.seriesName)} ${e.num}. bölüm ayrıntıları">
+      ${e.thumb?`<img src="${esc(e.thumb)}" alt="" loading="lazy">`:''}
+      ${pend?`<span class="badge wait">${I.clock} Yüklenmesi bekleniyor</span>`:w?`<span class="badge seen">${I.check} İzlendi</span>`:isFresh(e)?'<span class="badge">YENİ</span>':''}
+      ${pend?'':`<span class="play">${I.play(24).replace('currentColor','#fff')}</span>`}
+      ${e.duration?`<span class="dur">${esc(e.duration)}</span>`:''}
+    </button>
+    <div class="cbody">
+      <h3 class="sname">${esc(e.seriesName)}</h3>
+      <div class="meta"><span class="ep">${e.num}. Bölüm</span>${chTag(e.channel)}<span>${rel(e.airDate)}</span></div>
+    </div>
+    <div class="acts">
+      ${pend?`<button class="watch off" data-ep="${esc(e.id)}">Ayrıntılar</button>`:`<a class="watch" href="${esc(src&&src.url)}" target="_blank" rel="noopener" data-watch="${esc(e.id)}">${I.play()} İzle</a>`}
+      <button class="ib like" data-like="${esc(e.series)}" aria-pressed="${l}" aria-label="${l?'Beğeniyi kaldır':'Diziyi beğen'}">${I.heart(l)}</button>
+      <button class="ib fol" data-fol="${esc(e.series)}" aria-pressed="${f}" aria-label="${f?'Takibi bırak':'Diziyi takip et'}">${I.bell(f)}</button>
+      <button class="ib" data-ep="${esc(e.id)}" aria-label="Yorumlar">${I.chat}${n?`<span class="c">${n}</span>`:''}</button>
+    </div></article>`;
+}
+function epRow(e){
+  const w=!!S.me.watched[e.id],src=(e.sources||[])[0],pend=!online(e),f=!!S.me.follows[e.series];
+  return `<article class="rowc">
+    <button class="thumb ${w?'watched':''} ${pend?'pending':''}" data-ep="${esc(e.id)}" aria-label="${esc(e.seriesName)} ${e.num}. bölüm">
+      ${e.thumb?`<img src="${esc(e.thumb)}" alt="" loading="lazy">`:''}
+      ${pend?'':w?`<span class="badge seen">${I.check}</span>`:isFresh(e)?'<span class="badge">YENİ</span>':''}
+      ${pend?'':`<span class="play">${I.play(18).replace('currentColor','#fff')}</span>`}
+    </button>
+    <div class="rb">
+      <h3 class="sname">${esc(e.seriesName)}</h3>
+      <div class="meta"><span class="ep">${e.num}. Bölüm</span>${chTag(e.channel)}</div>
+      <div class="meta">${pend?'Yayınlandı, internete yüklenmesi bekleniyor':esc(rel(e.airDate))+(e.duration?' · '+esc(e.duration):'')}</div>
+      <div class="acts">
+        ${pend?'':`<a class="watch" href="${esc(src&&src.url)}" target="_blank" rel="noopener" data-watch="${esc(e.id)}">${I.play(13)} İzle</a>`}
+        <button class="ib fol" data-fol="${esc(e.series)}" aria-pressed="${f}" aria-label="${f?'Takibi bırak':'Takip et'}" ${pend?'style="margin-left:auto"':''}>${I.bell(f)}</button>
+      </div>
+    </div></article>`;
+}
+function poster(s){
+  const l=!!S.me.likes[s.key],f=!!S.me.follows[s.key],last=epsOf(s.key).find(online);
+  return `<button class="poster" data-series="${esc(s.key)}" aria-label="${esc(s.name)}">
+    ${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="" loading="lazy">`:''}
+    <div class="tags">${last&&isFresh(last)?'<span class="new">YENİ</span>':'<span></span>'}<span class="tg ${l?'on':''}" aria-hidden="true">${l?I.heart(true):f?I.bell(true):''}</span></div>
+    <div class="pc"><h3>${esc(s.name)}</h3>${chTag(s.channel)}<span class="pm">${esc(s.day)} ${esc(s.time||'')}${last?' · '+last.num+'. bölüm':''}</span></div>
+  </button>`;
+}
+function chips(list){
+  const chans=['Tümü',...new Set(list.map(x=>x.channel))];
+  if(!chans.includes(S.channel)) S.channel='Tümü';
+  return `<div class="chips">${chans.map(c=>`<button class="chip" data-ch="${esc(c)}" aria-pressed="${c===S.channel}">${esc(c)}</button>`).join('')}</div>`;
+}
+function empty(t,p,btn){return `<div class="empty"><h3>${t}</h3><p style="margin:0">${p}</p>${btn||''}</div>`;}
+function ring(p){const r=26,c=2*Math.PI*r;return `<svg viewBox="0 0 62 62" width="62" height="62" aria-hidden="true"><circle cx="31" cy="31" r="${r}" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="6"/><circle cx="31" cy="31" r="${r}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}" transform="rotate(-90 31 31)"/></svg>`;}
+
+/* ---------- views ---------- */
+function vHome(){
+  const ser=mS(S.series.slice()).sort((a,b)=>(!!S.me.follows[b.key])-(!!S.me.follows[a.key])||((epsOf(b.key).find(online)||{}).airDate||'').localeCompare((epsOf(a.key).find(online)||{}).airDate||''));
+  const stories=`<div class="stories" aria-label="Diziler">${ser.map(s=>{const last=epsOf(s.key).find(online),fr=last&&isFresh(last);return `<button class="story ${fr?'fresh':''}" data-series="${esc(s.key)}"><span class="av">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}${S.me.follows[s.key]?`<span class="fl">${I.bell(true).replace('21','12').replace('21','12')}</span>`:''}</span><span>${esc(s.name)}</span></button>`;}).join('')}</div>`;
+  const LIVE={'atv':'https://www.atv.com.tr/canli-yayin','Show TV':'https://www.showtv.com.tr/canli-yayin','NOW':'https://www.nowtv.com.tr/canli-yayin','Star TV':'https://www.startv.com.tr/canli-yayin','Kanal 7':'https://www.kanal7.com/canli-izle','Kanal D':'https://www.kanald.com.tr/canli-yayin','TRT 1':'https://www.tabii.com/tr/watch/live/trt1','TV8':'https://www.tv8.com.tr/canli-yayin'};
+  const wdName=DN[new Date().getDay()], wkday=new Date().getDay()%6!==0;
+  const tn=mS(S.series.filter(s=>!s.ended&&(s.day===wdName||(s.day==='Hafta içi her gün'&&wkday)))).map(s=>{const eps=epsOf(s.key),todayEp=eps.find(e=>e.airDate===ymd(new Date())),last=eps[0];
+    return {seriesName:s.name,channel:s.channel,time:s.time||'20:00',live:LIVE[s.channel]||s.page,thumb:thumbOf(s.key),num:todayEp?todayEp.num:last?last.num+1:null};});
+  const now=new Date(), hm=now.getHours()*60+now.getMinutes();
+  const stOf=t=>{const [h,m]=t.time.split(':').map(Number); return h*60+m;};
+  tn.sort((a,b)=>((hm>=stOf(a)+150)-(hm>=stOf(b)+150))||stOf(a)-stOf(b));
+  const tonight=tn.length?`<section class="sec"><div class="sec-h"><h2>Bu akşam ekranda</h2></div><div class="rail">${tn.map(t=>{const st=stOf(t),on=hm>=st&&hm<st+150,past=hm>=st+150;
+    return `<a class="tcard" href="${esc(t.live)}" target="_blank" rel="noopener">${t.thumb?`<img src="${esc(t.thumb)}" alt="" loading="lazy">`:''}<span class="live ${on?'':'soon'}"><i></i>${on?'ŞU AN YAYINDA':past?'BU AKŞAM YAYINLANDI':'SAAT '+esc(t.time)}</span><div class="tc"><h3>${esc(t.seriesName)}</h3><div class="row">${chTag(t.channel).replace('class="ch"','class="ch" style="color:#fff;--cc:var('+(CC[t.channel]||'--muted')+')"')}<span>${t.num?t.num+'. Bölüm':'Yeni bölüm'}</span><span>· ${esc(t.time)}</span></div><div class="row"><span class="ghost">${I.play(13)} Canlı izle</span></div></div></a>`;}).join('')}</div></section>`:'';
+  const fresh=mE(S.episodes.filter(e=>online(e)&&daysAgo(e.airDate)>=0&&daysAgo(e.airDate)<=2)).sort((a,b)=>b.airDate.localeCompare(a.airDate));
+  const wk=mE(weekEps().filter(online)), seen=wk.filter(e=>S.me.watched[e.id]).length;
+  const prog=wk.length?`<section class="sec"><div class="prog"><div class="ringw">${ring(seen/wk.length)}<b>${seen}</b></div><div><h3>Bu hafta ${wk.length} yeni bölüm</h3><p>${seen?`${seen} tanesini izledin. ${wk.length-seen} bölüm seni bekliyor.`:'Henüz hiçbirini izlemedin. Kaçırdıklarına göz at.'}</p><button data-v="week">Kaçırdıklarıma bak</button></div></div></section>`:'';
+  const pend=mE(S.episodes.filter(e=>!online(e)));
+  const head=mineToggle()+(hasFollows()?'':discoverCard());
+  return `${head}${stories}${tonight}
+    <section class="sec"><div class="sec-h"><h2>Yeni düşenler</h2><button class="more" data-v="week">Tümü</button></div>
+    ${fresh.length?`<div class="feed">${fresh.map(epCard).join('')}</div>`:empty('Son iki günde yeni bölüm yok','Bu haftanın bölümleri "Bu hafta" sekmesinde.')}</section>
+    ${prog}
+    ${pend.length?`<section class="sec"><div class="sec-h"><h2>Yakında internette</h2></div><p class="sub">Bu bölümler televizyonda yayınlandı. Kanal yükleyince burada izlenebilir olacak.</p><div class="list">${pend.map(epRow).join('')}</div></section>`:''}`;
+}
+function vWeek(){
+  const days=[...Array(7)].map((_,i)=>{const d=today0(); d.setDate(d.getDate()-6+i); return d;});
+  const cnt=d=>S.episodes.filter(e=>e.airDate===ymd(d)).length;
+  if(!S.day||!days.some(d=>ymd(d)===S.day)){ S.day='all'; }
+  const strip=`<div class="days"><button class="day" data-day="all" aria-pressed="${S.day==='all'}"><small>Hafta</small><b>7</b><em>${weekEps().length} bölüm</em></button>${days.map(d=>{const n=cnt(d);return `<button class="day" data-day="${ymd(d)}" aria-pressed="${S.day===ymd(d)}" ${n?'':'disabled'}><small>${daysAgo(ymd(d))===0?'Bugün':DS[d.getDay()]}</small><b>${d.getDate()}</b><em>${n?n+' bölüm':'—'}</em></button>`;}).join('')}</div>`;
+  let list=mE(S.day==='all'?weekEps():S.episodes.filter(e=>e.airDate===S.day));
+  const base=list; list=chF(list).sort((a,b)=>b.airDate.localeCompare(a.airDate)||(!!S.me.watched[a.id])-(!!S.me.watched[b.id]));
+  let body='';
+  if(S.day==='all'){
+    const g={}; list.forEach(e=>(g[e.airDate]||(g[e.airDate]=[])).push(e));
+    body=Object.keys(g).sort().reverse().map(k=>`<section class="sec" style="margin-top:18px"><div class="sec-h"><h2 style="font-size:17px">${daysAgo(k)===0?'Bugün':daysAgo(k)===1?'Dün':DN[pd(k).getDay()]} <span class="note" style="font-family:var(--body)">${pd(k).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})}</span></h2></div><div class="list">${g[k].map(epRow).join('')}</div></section>`).join('');
+  } else body=`<div class="list" style="margin-top:6px">${list.map(epRow).join('')}</div>`;
+  const prevs=list.filter(online).map(e=>epsOf(e.series).find(p=>p.num<e.num&&online(p))).filter(Boolean).filter(p=>!S.me.watched[p.id]&&!list.includes(p));
+  const prevSec=prevs.length?`<section class="sec"><div class="sec-h"><h2>Önceki bölümler</h2></div><p class="sub">Bu haftanın bölümlerinden önce gelenler. Arada kaçırdığın varsa buradan izleyebilirsin.</p><div class="list">${prevs.map(epRow).join('')}</div></section>`:'';
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Bu hafta yayınlananlar</h2></div><p class="sub">Son 7 günde televizyonda yayınlanan bölümler.</p>${mineToggle()}${strip}${chips(base)}${list.length?body:empty('Bu kanalda bölüm yok','Başka bir kanal seç.')}</section>${prevSec}`;
+}
+function vFollow(){
+  const keys=Object.keys(S.me.follows);
+  if(!keys.length) return `<section class="sec">${empty('Henüz takip ettiğin dizi yok','Bir dizinin zil simgesine dokun. Takip ettiğin dizilerin yeni bölümleri burada toplanır.','<button class="btn" data-v="all">Dizileri keşfet</button>')}</section>`;
+  const list=S.episodes.filter(e=>S.me.follows[e.series]).sort((a,b)=>(!!S.me.watched[a.id])-(!!S.me.watched[b.id])||b.airDate.localeCompare(a.airDate));
+  const unseen=list.filter(e=>online(e)&&!S.me.watched[e.id]);
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Takip ettiklerin</h2></div><p class="sub">${keys.length} dizi · ${unseen.length} izlenmemiş bölüm</p>
+    <div class="stories" style="padding-top:4px">${keys.map(k=>sBy(k)).filter(s=>s.key).map(s=>`<button class="story" data-series="${esc(s.key)}"><span class="av">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}</span><span>${esc(s.name)}</span></button>`).join('')}</div>
+    <div class="feed" style="margin-top:12px">${list.map(epCard).join('')}</div></section>`;
+}
+function vLikes(){
+  const list=S.series.filter(s=>S.me.likes[s.key]);
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Beğendiklerin</h2></div>${list.length?`<div class="grid">${list.map(poster).join('')}</div>`:empty('Beğendiğin dizi yok','Kalp simgesine dokunarak sevdiğin dizileri burada ayrı tutabilirsin.','<button class="btn" data-v="all">Dizileri keşfet</button>')}</section>`;
+}
+function vAll(){
+  const list=chF(S.series.slice()).sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Tüm diziler</h2></div><p class="sub">${S.series.length} dizi, ${new Set(S.series.map(s=>s.channel)).size} kanal</p>${chips(S.series)}<div class="grid">${list.map(poster).join('')}</div></section>`;
+}
+
+function render(){
+  document.querySelectorAll('.tb').forEach(t=>t.toggleAttribute('aria-current',false)||t.dataset.v===S.view&&t.setAttribute('aria-current','page'));
+  const fUnseen=S.episodes.filter(e=>S.me.follows[e.series]&&online(e)&&!S.me.watched[e.id]).length;
+  const nf=$('#n-follow'); nf.hidden=!fUnseen; nf.textContent=fUnseen;
+  const wkU=weekEps().filter(e=>online(e)&&!S.me.watched[e.id]).length; const nw=$('#n-week'); nw.hidden=!wkU; nw.textContent=wkU;
+  const un=unreadN(), nn=$('#n-notif'); nn.hidden=!un; nn.textContent=un;
+  const m=$('#main');
+  if(!S.loaded){ if(S.dbOk===false) m.innerHTML=`<section class="sec">${empty('Bölümler yüklenemedi','Liste Claude hesabındaki kayıtlardan geliyor. Sayfayı claude.ai üzerinde giriş yapmış olarak aç.')}</section>`; return; }
+  if(!S.episodes.length){ m.innerHTML=`<section class="sec">${empty('Henüz bölüm yok','Yeni bölümler eklendiğinde burada kapak görselleriyle listelenecek.')}</section>`; return; }
+  m.innerHTML=({home:vHome,week:vWeek,follow:vFollow,likes:vLikes,all:vAll}[S.view]||vHome)();
+  const u=S.meta&&S.meta.updatedAt;
+  $('#foot').innerHTML=`${u?`Liste ${new Date(u).toLocaleString('tr-TR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})} tarihinde güncellendi.<br>`:''}Bölümler kanalların kendi sitelerinde ya da resmi YouTube kanallarında açılır.`;
+  if(S.open) renderSheet();
+}
+
+/* ---------- sheets ---------- */
+function openSheet(kind,id){ S.open={kind,id}; renderSheet(); const sh=$('#sheet'),sc=$('#scrim'); sh.hidden=false; sc.hidden=false; sh.scrollTop=0; requestAnimationFrame(()=>{sh.classList.add('on');sc.classList.add('on');}); document.body.style.overflow='hidden'; setTimeout(()=>{const b=$('.close',sh); b&&b.focus({preventScroll:true});},80); }
+function closeSheet(){ const sh=$('#sheet'),sc=$('#scrim'); sh.classList.remove('on'); sc.classList.remove('on'); document.body.style.overflow=''; S.open=null; setTimeout(()=>{if(!S.open){sh.hidden=true;sc.hidden=true;}},300); }
+function renderSheet(){
+  const sh=$('#sheet'); const o=S.open; if(!o) return;
+  const draft=$('#cm-text',sh)?$('#cm-text',sh).value:'';
+  if(o.kind==='search'){ renderSearch(sh); return; }
+  if(o.kind==='notif'){ renderNotif(sh); return; }
+  if(o.kind==='series'){
+    const s=sBy(o.id); if(!s.key) return; const f=!!S.me.follows[s.key],l=!!S.me.likes[s.key], eps=epsOf(s.key);
+    sh.innerHTML=`<div class="hero">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}<button class="close" data-close aria-label="Kapat">${I.x}</button></div>
+    <div class="in"><div><h2 id="sh-title">${esc(s.name)}</h2><div class="meta" style="margin-top:6px">${chTag(s.channel)}<span>Her ${esc(s.day.toLocaleLowerCase('tr'))} ${esc(s.time||'')}</span></div></div>
+    <div class="flex"><button class="pill" data-fol="${esc(s.key)}" aria-pressed="${f}">${f?I.check+' Takipte':I.plus+' Takip et'}</button><button class="pill like" data-like="${esc(s.key)}" aria-pressed="${l}">${I.heart(l).replace(/21/g,'15')} ${l?'Beğendin':'Beğen'}</button>${s.page?`<a class="pill" href="${esc(s.page)}" target="_blank" rel="noopener">${I.ext} Tüm bölümler</a>`:''}</div>
+    <div class="list">${eps.map(e=>`<button class="eprow" data-ep="${esc(e.id)}">${e.thumb?`<img src="${esc(e.thumb)}" alt="">`:''}<div><b>${e.num}. Bölüm ${S.me.watched[e.id]?'· İzlendi':''}</b><span>${online(e)?esc(rel(e.airDate))+(e.duration?' · '+esc(e.duration):''):'Yüklenmesi bekleniyor'}</span></div></button>`).join('')}</div></div>`;
+    return;
+  }
+  const e=S.episodes.find(x=>x.id===o.id); if(!e) return;
+  const f=!!S.me.follows[e.series],l=!!S.me.likes[e.series],w=!!S.me.watched[e.id],pend=!online(e);
+  const list=S.comments.filter(c=>c.ep===e.id).sort((a,b)=>(a.at||'').localeCompare(b.at||''));
+  const others=epsOf(e.series).filter(x=>x.id!==e.id);
+  const srcs=(e.sources||[]);
+  sh.innerHTML=`<div class="hero">${e.thumb?`<img src="${esc(e.thumb)}" alt="">`:''}<button class="close" data-close aria-label="Kapat">${I.x}</button></div>
+  <div class="in">
+    <div><h2 id="sh-title">${esc(e.seriesName)}</h2><div class="meta" style="margin-top:6px"><span class="ep">${e.num}. Bölüm</span>${chTag(e.channel)}<span>${esc(pd(e.airDate).toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'}))}</span>${e.duration?`<span>${esc(e.duration)}</span>`:''}</div></div>
+    ${pend?`<p class="desc">Bu bölüm televizyonda yayınlandı ama kanal henüz internete yüklemedi. Dizinin sayfasından kontrol edebilirsin.</p><div class="flex"><a class="pill" href="${esc(srcs[0]&&srcs[0].url)}" target="_blank" rel="noopener">${I.ext} Dizinin sayfasına git</a></div>`
+      :`<div class="flex">${srcs.map((s,i)=>`<a class="${i?'pill':'watch big'}" href="${esc(s.url)}" target="_blank" rel="noopener" data-watch="${esc(e.id)}">${i?I.ext:I.play()} ${i?esc(s.label):'İzle · '+esc(s.label)}</a>`).join('')}</div>
+      <div class="flex"><button class="pill" data-seen="${esc(e.id)}" aria-pressed="${w}">${w?I.check+' İzlendi':'İzledim olarak işaretle'}</button></div>`}
+    ${e.desc?`<p class="desc">${esc(e.desc)}</p>`:''}
+    <div class="flex"><button class="pill" data-fol="${esc(e.series)}" aria-pressed="${f}">${f?I.check+' Takipte':I.plus+' Diziyi takip et'}</button><button class="pill like" data-like="${esc(e.series)}" aria-pressed="${l}">${I.heart(l).replace(/21/g,'15')} ${l?'Beğendin':'Beğen'}</button></div>
+    ${others.length?`<div><div class="note" style="margin-bottom:8px;font-weight:600">Diğer bölümler</div><div class="list">${others.map(x=>`<button class="eprow" data-ep="${esc(x.id)}">${x.thumb?`<img src="${esc(x.thumb)}" alt="">`:''}<div><b>${x.num}. Bölüm ${S.me.watched[x.id]?'· İzlendi':''}</b><span>${online(x)?esc(rel(x.airDate)):'Yüklenmesi bekleniyor'}</span></div></button>`).join('')}</div></div>`:''}
+    <div class="cm"><h3>Yorumlar <span>${list.length}</span></h3>
+      <div class="clist">${list.length?list.map(c=>`<div class="cmt"><div class="who"><b>${esc(nameOf(c.uid))}</b><span>${c.at?new Date(c.at).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}${c.uid&&c.uid===S.uid?` · <button class="del" data-del="${esc(c._id)}">Sil</button>`:''}</span></div><p>${esc(c.text)}</p></div>`).join(''):'<div class="note">Bu bölüme henüz yorum yazılmadı. İlk yorumu sen yaz.</div>'}</div>
+      ${true?`<form id="cm-form"><label for="cm-text" class="note">Bu bölüm hakkında ne düşünüyorsun?</label><textarea id="cm-text" maxlength="1000" placeholder="Yorumunu yaz">${esc(draft)}</textarea><div class="send"><span class="note" id="cm-msg"></span><button class="btn" type="submit">Gönder</button></div></form>`:'<div class="note">Yorum yazmak için claude.ai’de giriş yap.</div>'}
+    </div>
+  </div>`;
+}
+const fold=s=>String(s||'').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function renderSearch(sh){
+  const q=S.q||''; const fq=fold(q);
+  const hits=fq?S.series.filter(s=>fold(s.name).includes(fq)||fold(s.channel).includes(fq)):[];
+  const mine=S.requests.filter(r=>r.uid===S.uid||!r.uid).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
+  const exact=S.series.some(s=>fold(s.name)===fq);
+  sh.innerHTML=`<div class="in" style="padding-top:18px"><div class="flex" style="justify-content:space-between"><h2 id="sh-title">Dizi ara</h2><button class="close" style="position:static;background:var(--surface-2);color:var(--ink)" data-close aria-label="Kapat">${I.x}</button></div>
+  <form class="sbox" id="s-form" role="search"><input id="s-q" type="search" autocomplete="off" placeholder="Dizi adı yaz, ör. Kuruluş Orhan" value="${esc(q)}" aria-label="Dizi adı"><button class="btn" style="margin:0;padding:8px 14px" type="submit">Ara</button></form>
+  ${fq?(hits.length?`<div class="note" style="font-weight:600">Listede bulunanlar</div><div class="sres">${hits.map(s=>{const f=!!S.me.follows[s.key];return `<div class="rowc"><button class="thumb" data-series="${esc(s.key)}" style="width:38%">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}</button><div class="rb"><h3 class="sname">${esc(s.name)}</h3><div class="meta">${chTag(s.channel)}<span>${esc(s.day)} ${esc(s.time||'')}</span></div><div class="acts"><button class="pill" data-fol="${esc(s.key)}" aria-pressed="${f}">${f?I.check+' Takipte':I.plus+' Takip et'}</button></div></div></div>`;}).join('')}</div>`:'')
+   +(exact?'':`<div class="addcard"><b>“${esc(q.trim())}” listede yok</b><span class="note">Bu web sürümü yerleşik bir listeyle gelir. Daha fazla dizi ve otomatik güncelleme için Android uygulamasını kullanabilirsin.</span></div>`)
+   :`<p class="desc">Listedeki ${S.series.length} dizi arasında ara. Aradığın dizi yoksa listeye eklenmesini isteyebilirsin.</p>`}
+  ${mine.length?`<div><div class="note" style="font-weight:600;margin-bottom:6px">Eklenmesini istediklerin</div><div class="reqs">${mine.map(r=>`<div class="req"><span>${esc(r.name)}${r.note?`<br><span class="note">${esc(r.note)}</span>`:''}</span><em class="st-${esc(r.status||'new')}">${r.status==='done'?'Eklendi':r.status==='notfound'?'Bulunamadı':'Aranıyor'}</em></div>`).join('')}</div></div>`:''}
+  </div>`;
+  setTimeout(()=>{const i=$('#s-q'); if(i&&!fq) i.focus();},60);
+}
+const epTime=e=>e.addedAt||(e.airDate+'T23:00:00+03:00');
+const notifList=()=>S.episodes.filter(e=>S.me.follows[e.series]&&online(e)&&daysAgo(e.airDate)<10).sort((a,b)=>epTime(b).localeCompare(epTime(a)));
+const unreadN=()=>notifList().filter(e=>epTime(e)>(S.me.lastSeen||'')&&!S.me.watched[e.id]).length;
+function renderNotif(sh){
+  const L=notifList(), seen=S.notifSeenAt||'';
+  sh.innerHTML=`<div class="in" style="padding-top:18px"><div class="flex" style="justify-content:space-between"><h2 id="sh-title">Bildirimler</h2><button class="close" style="position:static;background:var(--surface-2);color:var(--ink)" data-close aria-label="Kapat">${I.x}</button></div>
+  ${Object.keys(S.me.follows).length?(L.length?`<div class="list">${L.map(e=>`<button class="eprow" data-ep="${esc(e.id)}" ${epTime(e)>seen&&!S.me.watched[e.id]?'style="outline:2px solid var(--coral)"':''}>${e.thumb?`<img src="${esc(e.thumb)}" alt="">`:''}<div><b>${esc(e.seriesName)} · ${e.num}. bölüm internete düştü</b><span>${chTag(e.channel)} · ${esc(rel(e.airDate))}${S.me.watched[e.id]?' · İzlendi':''}</span></div></button>`).join('')}</div>`:'<p class="desc">Takip ettiğin dizilerin son 10 günde yeni bölümü yok.</p>')
+   :'<p class="desc">Henüz takip ettiğin dizi yok. Bir dizinin zil simgesine dokunursan yeni bölümü düştüğünde burada görürsün.</p>'}
+  <p class="note">Telefon bildirimi: Liste günde 3 kez (00:40, 09:40, 15:40) güncellenir. Takip ettiğin bir dizinin yeni bölümü bulunursa Claude uygulaması telefonuna bildirim gönderir.</p></div>`;
+}
+const nameOf=uid=>uid&&uid===S.uid?'Sen':(S.names[uid]||'Bir izleyici');
+
+/* ---------- state ---------- */
+let saveT=null,saving=false,pending=false,lastEdit=0;
+function saveMe(){ try{localStorage.setItem('bv2-me',JSON.stringify(S.me));}catch(e){} }
+async function flush(){ if(saving){pending=true;return;} saving=true;
+  try{ await S.db.collection('data/users/'+S.uid).doc('state').set({follows:S.me.follows,likes:S.me.likes,watched:S.me.watched,lastSeen:S.me.lastSeen||''}); }catch(e){ toast('Kaydedilemedi, tekrar dene.'); }
+  saving=false; if(pending){pending=false;flush();} }
+function toggle(map,key,on,off,el){ if(S.me[map][key]){delete S.me[map][key];toast(off);} else {S.me[map][key]=true;toast(on);} saveMe(); render(); }
+let tt=null; function toast(t){const el=$('#toast'); el.textContent=t; el.hidden=false; clearTimeout(tt); tt=setTimeout(()=>el.hidden=true,1900);}
+function go(v){ S.view=v; try{localStorage.setItem('bv2-view',v)}catch(e){}; if(S.open) closeSheet(); render(); window.scrollTo({top:0}); }
+
+document.addEventListener('click',ev=>{
+  if(ev.target.id==='scrim'){closeSheet();return;}
+  const t=ev.target.closest('button,a'); if(!t) return; const d=t.dataset;
+  if('openSearch' in d){ openSheet('search',''); return; }
+  if('openNotif' in d){ S.notifSeenAt=S.me.lastSeen||''; openSheet('notif',''); S.me.lastSeen=new Date().toISOString(); saveMe(); render(); return; }
+  if(d.req){ addRequest(d.req); return; }
+  if(d.v) go(d.v);
+  else if(d.ch){ S.channel=d.ch; render(); }
+  else if(d.mine!==undefined){ S.mine=d.mine==='1'; try{localStorage.setItem('bv2-mine',S.mine?'1':'0')}catch(e){}; render(); }
+  else if(d.day){ S.day=d.day; render(); }
+  else if(d.ep){ openSheet('ep',d.ep); }
+  else if(d.series){ openSheet('series',d.series); }
+  else if('close' in d) closeSheet();
+  else if(d.fol){ const s=sBy(d.fol); toggle('follows',d.fol,`${s.name} takip ediliyor`,`${s.name} takipten çıkarıldı`); }
+  else if(d.like){ const s=sBy(d.like); toggle('likes',d.like,`${s.name} beğenilenlere eklendi`,`${s.name} beğenilenlerden çıkarıldı`); requestAnimationFrame(()=>document.querySelectorAll(`[data-like="${CSS.escape(d.like)}"] svg`).forEach(x=>x.classList.add('pop'))); }
+  else if(d.seen) toggle('watched',d.seen,'İzlendi olarak işaretlendi','İzlenmedi olarak işaretlendi');
+  else if(d.watch){ if(!S.me.watched[d.watch]){ S.me.watched[d.watch]=true; saveMe(); setTimeout(render,400);} }
+  else if(d.del) delComment(d.del);
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&S.open) closeSheet(); });
+document.addEventListener('input',ev=>{ if(ev.target.id==='s-q'){ S.q=ev.target.value; const pos=ev.target.selectionStart; renderSheet(); const i=$('#s-q'); if(i){i.focus(); try{i.setSelectionRange(pos,pos);}catch(e){}} } });
+async function addRequest(name){ toast('Bu sürümde yeni dizi eklenemez'); return;
+  name=String(name||'').trim().slice(0,80); if(!name) return;
+  if(!S.db){ toast('İstek göndermek için giriş yap'); return; }
+  if(S.requests.some(r=>fold(r.name)===fold(name))){ toast('Bu dizi zaten istek listende'); return; }
+  try{ await S.db.collection('requests').add({name,uid:S.uid||'',at:new Date().toISOString(),status:'new'}); toast(`“${name}” aranacak`); S.q=''; renderSheet(); }
+  catch(e){ toast('İstek gönderilemedi, tekrar dene'); }
+}
+document.addEventListener('submit',async ev=>{
+  if(ev.target.id==='s-form'){ ev.preventDefault(); S.q=$('#s-q').value; renderSheet(); return; }
+  if(ev.target.id!=='cm-form') return; ev.preventDefault();
+  const ta=$('#cm-text'),msg=$('#cm-msg'),text=ta.value.trim(); if(!text){msg.textContent='Önce bir şey yaz.';return;}
+  const btn=ev.target.querySelector('button[type=submit]'); btn.disabled=true; msg.textContent='Gönderiliyor…';
+  const e=S.episodes.find(x=>x.id===S.open.id)||{}; const c={_id:Date.now().toString(36),ep:e.id,series:e.series||'',uid:'local',text,at:new Date().toISOString()};
+  S.comments=[...S.comments,c]; try{localStorage.setItem('bv2-comments',JSON.stringify(S.comments))}catch(_){}
+  ta.value=''; msg.textContent=''; toast('Yorumun eklendi'); renderSheet();
+  btn.disabled=false;
+});
+function delComment(id){ S.comments=S.comments.filter(c=>c._id!==id); try{localStorage.setItem('bv2-comments',JSON.stringify(S.comments))}catch(_){}; toast('Yorum silindi'); renderSheet(); }
+
+/* ---------- boot ---------- */
+render();
+(function(){
+  const D=window.__DATA__||{series:[],episodes:[]};
+  S.series=(D.series||[]).map(x=>({...x}));
+  S.episodes=(D.episodes||[]).map(x=>({...x})).filter(e=>e.airDate);
+  S.meta={updatedAt:D.updatedAt||''}; S.uid='local';
+  try{const c=JSON.parse(localStorage.getItem('bv2-comments')||'[]'); if(Array.isArray(c)) S.comments=c;}catch(e){}
+  S.loaded=true; S.dbOk=true; render();
+})();
+</script>
+
+</body></html>
+</body>
+</html>
