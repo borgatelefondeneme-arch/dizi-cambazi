@@ -159,9 +159,12 @@ KNOWN = {
  "Kod Adı Kırlangıç":("Cumartesi","22:45"),"Mehmed: Fetihler Sultanı":("Salı","20:00"),"Taşacak Bu Deniz":("Cuma","20:00"),
  "Anne Yarısı":("Salı","20:00"),"Halef: Köklerin Çağrısı":("Perşembe","20:00"),"Ömür Usta":("Pazar","20:00"),
  "Yeraltı":("Çarşamba","20:00"),"Sevdam Karadeniz":("Pazartesi","20:00"),"Sevdiğim Sensin":("Perşembe","20:00"),
- "Gelin":("Hafta içi her gün","19:00"),
+ "Gelin":("Hafta içi her gün","19:00"),"Tuzlu Kahve":("Salı","20:00"),
 }
 ENDED = {"Sevdam Karadeniz"}
+# Yayında olduğu bilinen ama kaynakları (ör. Star TV + geç düşen YouTube) nedeniyle
+# son bölümü eskimiş görünebilen diziler; tarihe bakmadan listede tutulur.
+FORCE = {"Tuzlu Kahve"}
 
 def page(src):
     t=src["type"]
@@ -198,6 +201,7 @@ def candidates():
     for n,s in [("Gelin","gelin"),("Kalbim Sana Emanet","kalbim-sana-emanet"),("Bilmezler Ki Kalbimdesin","bilmezler-ki-kalbimdesin")]:
         L.append(cand(n,"Kanal 7",{"type":"kanal7","slug":s,"page":f"https://www.kanal7.com/dizi/dizi-{s}"}))
     L.append(cand("Sevdiğim Sensin","Star TV",{"type":"youtube","slug":"sevdigim-sensin"}))
+    L.append(cand("Tuzlu Kahve","Star TV",{"type":"youtube","slug":"tuzlu-kahve"}))
     return L
 
 def guess_day(eps):
@@ -220,7 +224,7 @@ def main():
         dates=[dt.date.fromisoformat(e["airDate"]) for e in eps]
         latest=max(dates) if dates else None
         fresh = latest is not None and (TODAY-latest).days<=30
-        if len(eps)<2 or not fresh:
+        if len(eps)<2 or (not fresh and s["name"] not in FORCE):
             print("DROP", s["name"], "eps=%d"%len(eps), "latest=%s"%latest); continue
         day = s["day"] if s["day"] else (guess_day(eps) if guess_day(eps)=="Hafta içi her gün" else "")
         series.append({"key":s["key"],"name":s["name"],"channel":s["channel"],"day":day,"time":s["time"],"page":s["page"],"src":s["src"],"ended":s["ended"]})
