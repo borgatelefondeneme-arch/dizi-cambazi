@@ -23,4 +23,11 @@ class ScraperTest {
             println("## $q -> " + c.joinToString { "${it.series.name} [${it.series.channel}] ${it.series.src} ${it.series.day} eps=${it.preview.map { e -> e.num }}" })
         }
     }
+
+    @Test fun info() {
+        for (q in listOf("Teşkilat", "Uzak Şehir", "Gönül Dağı", "Halef: Köklerin Çağrısı")) {
+            val i = Scraper.fetchInfo(q)
+            println("## $q -> poster=${i?.poster?.isNotEmpty()} url=${i?.url} :: ${i?.summary?.take(90)}")
+        }
+    }
 }

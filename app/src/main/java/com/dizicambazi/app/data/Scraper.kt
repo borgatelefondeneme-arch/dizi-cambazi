@@ -230,4 +230,38 @@ object Scraper {
         return DAYS[top.value - 1]
     }
     @Suppress("unused") private fun dummy(d: DayOfWeek) = d
+
+    data class Info(val summary: String, val poster: String, val url: String)
+
+    /** Best-effort synopsis + poster from Turkish Wikipedia's public REST API. Legal to read; may return null. */
+    fun fetchInfo(name: String): Info? {
+        val title = wikiSearch(name) ?: return null
+        val s = get("https://tr.wikipedia.org/api/rest_v1/page/summary/" + URLEncoder.encode(title.replace(" ", "_"), "UTF-8"))
+        if (s.isBlank()) return null
+        return try {
+            val o = JSONObject(s)
+            if (o.optString("type") == "disambiguation") return null
+            val extract = o.optString("extract")
+            if (extract.isBlank()) return null
+            Info(extract, o.optJSONObject("thumbnail")?.optString("source") ?: o.optJSONObject("originalimage")?.optString("source") ?: "",
+                o.optJSONObject("content_urls")?.optJSONObject("desktop")?.optString("page") ?: "https://tr.wikipedia.org/wiki/" + URLEncoder.encode(title.replace(" ", "_"), "UTF-8"))
+        } catch (e: Exception) { null }
+    }
+
+    /** Finds the Wikipedia article title that best matches a TV series name. */
+    private fun wikiSearch(name: String): String? {
+        val s = get("https://tr.wikipedia.org/w/api.php?action=query&list=search&format=json&srlimit=6&srsearch=" +
+            URLEncoder.encode("$name dizi", "UTF-8"))
+        return try {
+            val hits = JSONObject(s).optJSONObject("query")?.optJSONArray("search") ?: return null
+            val want = norm(name)
+            var fallback: String? = null
+            for (i in 0 until hits.length()) {
+                val t = hits.getJSONObject(i).optString("title"); val nt = norm(t)
+                if (nt == want || nt == "$want dizi" || nt.startsWith("$want ")) return t
+                if (fallback == null && nt.contains(want)) fallback = t
+            }
+            fallback ?: if (hits.length() > 0) hits.getJSONObject(0).optString("title") else null
+        } catch (e: Exception) { null }
+    }
 }

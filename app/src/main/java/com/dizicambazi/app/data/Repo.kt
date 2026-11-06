@@ -33,6 +33,15 @@ object Repo {
     private val _refreshing = MutableStateFlow(false)
     val refreshing: StateFlow<Boolean> = _refreshing
 
+    // v2 settings & usage
+    val themeMode = MutableStateFlow("system")   // system | dark | light
+    val notifEnabled = MutableStateFlow(true)
+    val quietStart = MutableStateFlow(-1)        // hour 0-23, -1 = off
+    val quietEnd = MutableStateFlow(-1)
+    val refreshHours = MutableStateFlow(2)       // background check interval
+    val onboardingDone = MutableStateFlow(false)
+    val lastOpened = MutableStateFlow<String?>(null) // episode id — "devam et"
+
     @Synchronized fun init(ctx: Context) {
         if (::file.isInitialized) return
         file = File(ctx.filesDir, "state.json")
@@ -50,6 +59,10 @@ object Repo {
         comments.value = arr("comments").let { a -> (0 until a.length()).map { a.getJSONObject(it).let { c -> Comment(c.getString("id"), c.getString("episode"), c.getString("text"), c.getLong("at")) } } }
         notices.value = arr("notices").let { a -> (0 until a.length()).map { a.getJSONObject(it).let { c -> Notice(c.getString("episodeId"), c.getString("title"), c.getLong("at")) } } }
         lastSeenNotices.value = o.optLong("lastSeenNotices"); lastRefresh.value = o.optLong("lastRefresh")
+        themeMode.value = o.optString("themeMode", "system"); notifEnabled.value = o.optBoolean("notifEnabled", true)
+        quietStart.value = o.optInt("quietStart", -1); quietEnd.value = o.optInt("quietEnd", -1)
+        refreshHours.value = o.optInt("refreshHours", 2); onboardingDone.value = o.optBoolean("onboardingDone", false)
+        lastOpened.value = o.optString("lastOpened").ifEmpty { null }
     }
 
     @Synchronized fun save() {
@@ -61,7 +74,29 @@ object Repo {
         o.put("comments", JSONArray().also { a -> comments.value.forEach { a.put(JSONObject().put("id", it.id).put("episode", it.episode).put("text", it.text).put("at", it.at)) } })
         o.put("notices", JSONArray().also { a -> notices.value.takeLast(100).forEach { a.put(JSONObject().put("episodeId", it.episodeId).put("title", it.title).put("at", it.at)) } })
         o.put("lastSeenNotices", lastSeenNotices.value); o.put("lastRefresh", lastRefresh.value)
+        o.put("themeMode", themeMode.value); o.put("notifEnabled", notifEnabled.value)
+        o.put("quietStart", quietStart.value); o.put("quietEnd", quietEnd.value)
+        o.put("refreshHours", refreshHours.value); o.put("onboardingDone", onboardingDone.value)
+        o.put("lastOpened", lastOpened.value ?: "")
         val tmp = File(file.parentFile, "state.tmp"); tmp.writeText(o.toString()); tmp.renameTo(file)
+    }
+
+    fun setTheme(mode: String) { themeMode.value = mode; save() }
+    fun setNotif(on: Boolean) { notifEnabled.value = on; save() }
+    fun setQuiet(start: Int, end: Int) { quietStart.value = start; quietEnd.value = end; save() }
+    fun setRefreshHours(h: Int) { refreshHours.value = h; save() }
+    fun finishOnboarding() { onboardingDone.value = true; save() }
+    fun markOpened(id: String) { lastOpened.value = id; save() }
+    fun updateSeriesInfo(key: String, summary: String, poster: String, wikiUrl: String) {
+        series.value = series.value.map { if (it.key == key) it.copy(summary = summary, poster = poster, wikiUrl = wikiUrl, infoAt = System.currentTimeMillis()) else it }
+        save()
+    }
+
+    /** True when the current local hour is inside the user's quiet window (no notifications). */
+    fun quietNow(hour: Int): Boolean {
+        val s = quietStart.value; val e = quietEnd.value
+        if (s < 0 || e < 0 || s == e) return false
+        return if (s < e) hour in s until e else hour >= s || hour < e
     }
 
     fun toggleFollow(k: String) { follows.value = follows.value.toggle(k); save() }

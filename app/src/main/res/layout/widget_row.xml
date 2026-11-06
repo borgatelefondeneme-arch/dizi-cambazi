@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="5dp"
+    android:gravity="center_vertical">
+    <TextView
+        android:id="@+id/w_time"
+        android:layout_width="44dp"
+        android:layout_height="wrap_content"
+        android:textColor="#FF8A4C"
+        android:textStyle="bold"
+        android:textSize="13sp" />
+    <TextView
+        android:id="@+id/w_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
+    <TextView
+        android:id="@+id/w_channel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textColor="#B9A6CB"
+        android:textSize="12sp" />
+</LinearLayout>

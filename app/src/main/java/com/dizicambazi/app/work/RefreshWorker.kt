@@ -8,25 +8,43 @@ import android.content.pm.PackageManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.dizicambazi.app.App
 import com.dizicambazi.app.R
 import com.dizicambazi.app.data.Episode
 import com.dizicambazi.app.data.Repo
 import com.dizicambazi.app.ui.MainActivity
+import java.util.concurrent.TimeUnit
 
 class RefreshWorker(ctx: Context, p: WorkerParameters) : CoroutineWorker(ctx, p) {
     override suspend fun doWork(): Result {
         Repo.init(applicationContext)
         return try {
             val fresh = Repo.refresh()
-            notify(applicationContext, fresh.filter { it.series in Repo.follows.value })
+            WidgetProvider.refresh(applicationContext)
+            if (Repo.notifEnabled.value) {
+                val hour = java.time.LocalTime.now(java.time.ZoneId.of("Europe/Istanbul")).hour
+                if (!Repo.quietNow(hour)) notify(applicationContext, fresh.filter { it.series in Repo.follows.value })
+            }
             Result.success()
         } catch (e: Exception) { Result.retry() }
     }
 
     companion object {
+        /** (Re)schedules the periodic background check at the given interval (hours). */
+        fun schedule(ctx: Context, hours: Int) {
+            val h = hours.coerceIn(1, 24).toLong()
+            val req = PeriodicWorkRequestBuilder<RefreshWorker>(h, TimeUnit.HOURS, 30, TimeUnit.MINUTES)
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()
+            WorkManager.getInstance(ctx).enqueueUniquePeriodicWork("refresh", ExistingPeriodicWorkPolicy.UPDATE, req)
+        }
+
         fun notify(ctx: Context, eps: List<Episode>) {
             if (eps.isEmpty()) return
             if (android.os.Build.VERSION.SDK_INT >= 33 &&

@@ -10,6 +10,9 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +49,7 @@ import com.dizicambazi.app.work.RefreshWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle as JTextStyle
@@ -55,6 +60,9 @@ sealed class Route {
     data class Ser(val key: String) : Route()
     data object Search : Route()
     data object Notices : Route()
+    data object Settings : Route()
+    data object About : Route()
+    data object Calendar : Route()
 }
 
 class MainActivity : ComponentActivity() {
@@ -64,7 +72,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Repo.init(applicationContext)
         deepLink.value = intent.getStringExtra("episode")
-        setContent { DcTheme { AppRoot(deepLink) } }
+        setContent {
+            val mode by Repo.themeMode.collectAsStateWithLifecycle()
+            val dark = when (mode) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
+            DcTheme(dark) { AppRoot(deepLink) }
+        }
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent); deepLink.value = intent.getStringExtra("episode")
@@ -81,14 +93,17 @@ fun playExternalFallback(ctx: Context, e: Episode) {
 @Composable
 fun AppRoot(deepLink: MutableState<String?>) {
     val ctx = LocalContext.current; val scope = rememberCoroutineScope()
+    val onboardingDone by Repo.onboardingDone.collectAsStateWithLifecycle()
+    if (!onboardingDone) { OnboardingScreen(); return }
     val stack = remember { mutableStateListOf<Route>(Route.Tab("home")) }
     val top = stack.last()
     fun push(r: Route) { stack.add(r) }
     val play: (Episode) -> Unit = { e ->
+        Repo.markOpened(e.id)
         if (e.playsInApp) push(Route.Ep(e.id, autoplay = true))
         else { Repo.setWatched(e.id, true); playExternalFallback(ctx, e) }
     }
-    val open: (Episode) -> Unit = { push(Route.Ep(it.id)) }
+    val open: (Episode) -> Unit = { Repo.markOpened(it.id); push(Route.Ep(it.id)) }
     LaunchedEffect(deepLink.value) { deepLink.value?.let { push(Route.Ep(it)); deepLink.value = null } }
     BackHandler(enabled = stack.size > 1) { stack.removeAt(stack.lastIndex) }
 
@@ -119,6 +134,9 @@ fun AppRoot(deepLink: MutableState<String?>) {
                 is Route.Ser -> SeriesScreen(top.key, back = { stack.removeAt(stack.lastIndex) }, open, play)
                 Route.Search -> SearchScreen(back = { stack.removeAt(stack.lastIndex) }, push = ::push)
                 Route.Notices -> NoticesScreen(back = { stack.removeAt(stack.lastIndex) }, open)
+                Route.Settings -> SettingsScreen(back = { stack.removeAt(stack.lastIndex) }, push = ::push)
+                Route.About -> AboutScreen(back = { stack.removeAt(stack.lastIndex) })
+                Route.Calendar -> CalendarScreen(back = { stack.removeAt(stack.lastIndex) }, push = ::push)
             }
         }
     }
@@ -131,9 +149,14 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
     val follows by Repo.follows.collectAsStateWithLifecycle(); val likes by Repo.likes.collectAsStateWithLifecycle()
     val watched by Repo.watched.collectAsStateWithLifecycle(); val refreshing by Repo.refreshing.collectAsStateWithLifecycle()
     val notices by Repo.notices.collectAsStateWithLifecycle(); val seen by Repo.lastSeenNotices.collectAsStateWithLifecycle()
-    val last by Repo.lastRefresh.collectAsStateWithLifecycle()
+    val last by Repo.lastRefresh.collectAsStateWithLifecycle(); val lastOpened by Repo.lastOpened.collectAsStateWithLifecycle()
     var channel by remember(tab) { mutableStateOf("Tümü") }; var day by remember { mutableStateOf("all") }
-    val all = eps.values.toList()
+    var onlyMine by rememberSaveable { mutableStateOf(true) }
+    val allEps = eps.values.toList()
+    // On home & week, show only the series the user follows (unless they switch to "Tüm kanallar").
+    val mineOn = onlyMine && follows.isNotEmpty()
+    val all = if (mineOn) allEps.filter { it.series in follows } else allEps
+    val mySeries = if (mineOn) series.filter { it.key in follows } else series
     val unread = notices.count { it.at > seen }
     PullToRefreshBox(isRefreshing = refreshing, onRefresh = refresh, modifier = Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp),
@@ -141,9 +164,48 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
             item { Header(unread, push) }
             when (tab) {
                 "home" -> {
-                    val sorted = series.sortedWith(compareByDescending<com.dizicambazi.app.data.Series> { it.key in follows }
+                    if (follows.isNotEmpty()) item { MineToggle(onlyMine) { onlyMine = it } }
+                    if (follows.isEmpty()) item { DiscoverCard(push) }
+                    // Devam et — last opened episode that is online and not finished-watching
+                    val cont = lastOpened?.let { eps[it] }?.takeIf { it.online }
+                    if (cont != null && cont.id !in watched) item {
+                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(C.surface).clickable { play(cont) }) {
+                            Box(Modifier.fillMaxWidth().aspectRatio(16f / 7f)) {
+                                Thumb(cont.thumb, Modifier.fillMaxSize()); Box(Modifier.fillMaxSize().background(C.scrim))
+                                Badge("DEVAM ET", C.coral, Modifier.padding(12.dp))
+                                Box(Modifier.align(Alignment.Center).size(54.dp).clip(CircleShape).background(Color(0x66FFFFFF)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Filled.PlayArrow, null, tint = Color.White, modifier = Modifier.size(32.dp)) }
+                                Column(Modifier.align(Alignment.BottomStart).padding(14.dp)) {
+                                    Text(cont.seriesName, style = T.title.copy(color = Color.White, fontSize = 20.sp))
+                                    Text("${cont.num}. Bölüm · kaldığın yerden", color = Color.White, fontSize = 13.sp)
+                                }
+                            }
+                        }
+                    }
+                    // Yaklaşan bölümler — predicted next air for followed series
+                    val upcoming = series.filter { it.key in follows && !it.ended }.mapNotNull { s -> nextAir(s)?.let { s to it } }
+                        .sortedBy { it.second }.take(10)
+                    if (upcoming.isNotEmpty()) {
+                        item { Row(verticalAlignment = Alignment.CenterVertically) { Text("Yaklaşan bölümler", style = T.h2); Spacer(Modifier.weight(1f))
+                            Text("Takvim", color = C.coral, fontWeight = FontWeight.SemiBold, modifier = Modifier.clickable { push(Route.Calendar) }) } }
+                        item {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                items(upcoming, key = { it.first.key }) { (s, d) ->
+                                    Column(Modifier.width(150.dp).clip(RoundedCornerShape(14.dp)).background(C.surface).clickable { push(Route.Ser(s.key)) }) {
+                                        Thumb(Repo.thumbOf(s.key), Modifier.fillMaxWidth().aspectRatio(16f / 9f))
+                                        Column(Modifier.padding(10.dp)) {
+                                            Text(s.name, style = T.title.copy(fontSize = 15.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(whenLabel(d) + " · " + s.time, style = T.meta.copy(color = C.coral, fontWeight = FontWeight.SemiBold))
+                                            ChannelTag(s.channel)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    val sorted = mySeries.sortedWith(compareByDescending<com.dizicambazi.app.data.Series> { it.key in follows }
                         .thenByDescending { Repo.episodesOf(it.key).firstOrNull { e -> e.online }?.airDate ?: "" })
-                    item {
+                    if (sorted.isNotEmpty()) item {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             items(sorted, key = { it.key }) { s ->
                                 val lastE = Repo.episodesOf(s.key).firstOrNull { it.online }
@@ -159,7 +221,7 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
                         }
                     }
                     val wd = Scraper.DAYS[today().dayOfWeek.value - 1]; val weekday = today().dayOfWeek.value <= 5
-                    val tonight = series.filter { !it.ended && (it.day == wd || (it.day == "Hafta içi her gün" && weekday)) }.sortedBy { it.time }
+                    val tonight = mySeries.filter { !it.ended && (it.day == wd || (it.day == "Hafta içi her gün" && weekday)) }.sortedBy { it.time }
                     if (tonight.isNotEmpty()) {
                         item { Text("Bu akşam ekranda", style = T.h2) }
                         item {
@@ -210,6 +272,7 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
                 }
                 "week" -> {
                     item { Text("Bu hafta yayınlananlar", style = T.h2); Text("Son 7 günde televizyonda yayınlanan bölümler. Aşağı çekerek yenile.", style = T.meta) }
+                    if (follows.isNotEmpty()) item { MineToggle(onlyMine) { onlyMine = it } }
                     val days = (6 downTo 0).map { today().minusDays(it.toLong()) }
                     val wk = all.filter { daysAgo(it.airDate) in 0..6 }
                     item {
@@ -235,7 +298,8 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
                     }
                 }
                 "follow" -> {
-                    item { Text("Takip ettiklerin", style = T.h2) }
+                    item { Row(verticalAlignment = Alignment.CenterVertically) { Text("Takip ettiklerin", style = T.h2); Spacer(Modifier.weight(1f))
+                        if (follows.isNotEmpty()) Text("Takvim", color = C.coral, fontWeight = FontWeight.SemiBold, modifier = Modifier.clickable { push(Route.Calendar) }) } }
                     if (follows.isEmpty()) item { Empty("Henüz takip ettiğin dizi yok", "Bir dizinin zil simgesine dokun. Yeni bölümü internete düşünce sana bildirim gelir.", "Dizileri keşfet") { push(Route.Tab("all")) } }
                     else {
                         val list = all.filter { it.series in follows }.sortedWith(compareBy<Episode> { it.id in watched }.thenByDescending { it.airDate })
@@ -282,8 +346,10 @@ fun Header(unread: Int, push: (Route) -> Unit) {
         HeadBtn(Icons.Filled.Search, "Dizi ara") { push(Route.Search) }
         Spacer(Modifier.width(8.dp))
         Box { HeadBtn(Icons.Outlined.NotificationsNone, "Bildirimler") { push(Route.Notices) }
-            if (unread > 0) Text("$unread", Modifier.align(Alignment.TopEnd).offset(4.dp, (-4).dp).clip(RoundedCornerShape(50)).background(C.coral)
+            if (unread > 0) Text(if (unread > 9) "9+" else "$unread", Modifier.align(Alignment.TopEnd).offset(4.dp, (-4).dp).clip(RoundedCornerShape(50)).background(C.coral)
                 .padding(horizontal = 6.dp, vertical = 1.dp), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold) }
+        Spacer(Modifier.width(8.dp))
+        HeadBtn(Icons.Outlined.Settings, "Ayarlar") { push(Route.Settings) }
     }
 }
 
@@ -306,6 +372,28 @@ fun DayChip(top: String, mid: String, bot: String, on: Boolean, enabled: Boolean
 @Composable
 fun ChannelChips(chans: List<String>, sel: String, onSel: (String) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { items(listOf("Tümü") + chans.distinct()) { c -> Pill(c, c == sel) { onSel(c) } } }
+}
+
+/** Toggle between "only what I follow" and the whole catalog on the home & week feeds. */
+@Composable
+fun MineToggle(onlyMine: Boolean, onChange: (Boolean) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Pill("Takip ettiklerim", onlyMine) { onChange(true) }
+        Pill("Tüm kanallar", !onlyMine) { onChange(false) }
+    }
+}
+
+@Composable
+fun DiscoverCard(push: (Route) -> Unit) {
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(C.grad).padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("İzlediğin dizileri seç", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 19.sp)
+        Text("Takip ettiğin diziler burada toplanır, yeni bölümleri düşünce haber verilir. Şu an hiç dizi takip etmiyorsun.", color = Color.White, fontSize = 13.sp)
+        Spacer(Modifier.height(4.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Dizilere göz at", Modifier.clip(RoundedCornerShape(50)).background(Color.White).clickable { push(Route.Tab("all")) }.padding(horizontal = 16.dp, vertical = 9.dp), color = Color(0xFFC2243A), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text("Dizi ara", Modifier.clip(RoundedCornerShape(50)).background(Color(0x33FFFFFF)).clickable { push(Route.Search) }.padding(horizontal = 16.dp, vertical = 9.dp), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        }
+    }
 }
 
 @Composable
@@ -394,8 +482,20 @@ fun SeriesScreen(key: String, back: () -> Unit, open: (Episode) -> Unit, play: (
     Repo.episodes.collectAsStateWithLifecycle().value
     val s = series.firstOrNull { it.key == key } ?: run { back(); return }
     val ctx = LocalContext.current
+    var expanded by remember(key) { mutableStateOf(false) }
+    var loadingInfo by remember(key) { mutableStateOf(false) }
+    LaunchedEffect(key) {
+        if (s.infoAt == 0L || System.currentTimeMillis() - s.infoAt > 30L * 86_400_000) {
+            loadingInfo = true
+            val info = withContext(Dispatchers.IO) { runCatching { Scraper.fetchInfo(s.name) }.getOrNull() }
+            if (info != null) Repo.updateSeriesInfo(key, info.summary, info.poster, info.url)
+            else Repo.updateSeriesInfo(key, s.summary, s.poster, s.wikiUrl) // stamp infoAt so we don't refetch constantly
+            loadingInfo = false
+        }
+    }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 30.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item { Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f)) { Thumb(Repo.thumbOf(key), Modifier.fillMaxSize())
+            Box(Modifier.fillMaxSize().background(C.scrim))
             IconButton(back, Modifier.padding(8.dp).clip(CircleShape).background(Color(0x88000000))) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri", tint = Color.White) } } }
         item { Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(s.name, style = T.h2.copy(fontSize = 28.sp))
@@ -405,8 +505,20 @@ fun SeriesScreen(key: String, back: () -> Unit, open: (Episode) -> Unit, play: (
                 Pill(if (key in likes) "♥ Beğendin" else "♡ Beğen", key in likes) { Repo.toggleLike(key) }
                 if (s.page.isNotEmpty()) Pill("Tüm bölümler") { WebPlayerActivity.start(ctx, s.page, s.name) }
             }
+            // Rich info from Wikipedia (best-effort)
+            if (s.summary.isNotEmpty()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (s.poster.isNotEmpty()) Thumb(s.poster, Modifier.width(96.dp).aspectRatio(2f / 3f).clip(RoundedCornerShape(10.dp)))
+                    Column(Modifier.weight(1f)) {
+                        Text(s.summary, style = T.meta.copy(fontSize = 14.sp, lineHeight = 20.sp), maxLines = if (expanded) 40 else 5, overflow = TextOverflow.Ellipsis)
+                        Text(if (expanded) "Daha az" else "Devamını oku", color = C.coral, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, modifier = Modifier.clickable { expanded = !expanded }.padding(top = 4.dp))
+                    }
+                }
+                if (s.wikiUrl.isNotEmpty()) Text("Bilgi kaynağı: Vikipedi", style = T.meta.copy(fontSize = 12.sp), modifier = Modifier.clickable { WebPlayerActivity.openExternal(ctx, s.wikiUrl) })
+            } else if (loadingInfo) Text("Dizi bilgisi yükleniyor…", style = T.meta)
             if (s.userAdded) Text("Listeden çıkar", color = C.coral, fontSize = 13.sp, modifier = Modifier.clickable { Repo.removeSeries(key); back() })
         } }
+        item { Text("Bölümler", style = T.h2.copy(fontSize = 18.sp), modifier = Modifier.padding(horizontal = 16.dp)) }
         items(Repo.episodesOf(key), key = { it.id }) { Box(Modifier.padding(horizontal = 16.dp)) { EpisodeRow(it, watched, follows, open, play) } }
     }
 }
@@ -464,5 +576,184 @@ fun NoticesScreen(back: () -> Unit, open: (Episode) -> Unit) {
                 if (e != null) Thumb(e.thumb, Modifier.width(96.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(9.dp))); Spacer(Modifier.width(10.dp))
                 Column { Text(n.title, fontWeight = FontWeight.Bold, color = C.ink, fontSize = 14.sp)
                     Text(java.text.SimpleDateFormat("d MMMM HH:mm", TR).format(java.util.Date(n.at)), style = T.meta) } } }
+    }
+}
+
+/* ---------- v2 helpers & screens ---------- */
+
+/** Predicted next broadcast date for a followed series, from its weekday and the latest known episode. */
+fun nextAir(s: com.dizicambazi.app.data.Series): LocalDate? {
+    val lastDate = Repo.episodesOf(s.key).firstOrNull { it.online }?.let { runCatching { LocalDate.parse(it.airDate) }.getOrNull() }
+    if (s.day == "Hafta içi her gün") {
+        var d = today(); while (d.dayOfWeek.value > 5) d = d.plusDays(1)
+        if (lastDate != null && !lastDate.isBefore(today())) { d = d.plusDays(1); while (d.dayOfWeek.value > 5) d = d.plusDays(1) }
+        return d
+    }
+    val wd = Scraper.DAYS.indexOf(s.day); if (wd < 0) return null
+    val target = DayOfWeek.of(wd + 1); var d = today()
+    while (d.dayOfWeek != target) d = d.plusDays(1)
+    if (lastDate != null && !lastDate.isBefore(d)) d = d.plusWeeks(1)
+    return d
+}
+
+fun whenLabel(d: LocalDate): String {
+    val n = java.time.temporal.ChronoUnit.DAYS.between(today(), d)
+    return when { n == 0L -> "Bugün"; n == 1L -> "Yarın"; n in 2..6 -> d.dayOfWeek.getDisplayName(JTextStyle.FULL, TR).replaceFirstChar { it.uppercase() }
+        else -> "${d.dayOfMonth} ${d.month.getDisplayName(JTextStyle.FULL, TR)}" }
+}
+
+@Composable
+fun OnboardingScreen() {
+    val series by Repo.series.collectAsStateWithLifecycle()
+    val follows by Repo.follows.collectAsStateWithLifecycle()
+    Column(Modifier.fillMaxSize().background(C.bg)) {
+        Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 40.dp, bottom = 8.dp)) {
+            Row { Text("Dizi ", style = T.brand, color = C.ink); Text("Cambazı", style = T.brand, color = C.coral) }
+            Spacer(Modifier.height(8.dp))
+            Text("İzlediğin dizileri seç. Yeni bölümleri internete düşünce haber veririm. İstediğin zaman değiştirebilirsin.", style = T.meta)
+        }
+        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            items(series.sortedBy { it.name.lowercase(TR) }.chunked(2), key = { r -> r.joinToString { it.key } }) { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    row.forEach { s ->
+                        val on = s.key in follows
+                        Box(Modifier.weight(1f).aspectRatio(3f / 4f).clip(RoundedCornerShape(16.dp)).clickable { Repo.toggleFollow(s.key) }) {
+                            Thumb(Repo.thumbOf(s.key), Modifier.fillMaxSize()); Box(Modifier.fillMaxSize().background(C.scrim))
+                            if (on) Box(Modifier.fillMaxSize().background(Color(0x553FD37A)))
+                            Box(Modifier.align(Alignment.TopEnd).padding(8.dp).size(28.dp).clip(CircleShape).background(if (on) C.ok else Color(0x88000000)), contentAlignment = Alignment.Center) {
+                                Icon(if (on) Icons.Filled.Check else Icons.Filled.Add, null, tint = Color.White, modifier = Modifier.size(18.dp)) }
+                            Column(Modifier.align(Alignment.BottomStart).padding(10.dp)) {
+                                Text(s.name, style = T.title.copy(color = Color.White, fontSize = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                ChannelTag(s.channel, Color.White)
+                            }
+                        }
+                    }
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+        Column(Modifier.background(C.surface).padding(16.dp).padding(bottom = 8.dp)) {
+            GradButton(if (follows.isEmpty()) "Şimdilik geç" else "${follows.size} dizi ile başla", Modifier.fillMaxWidth(), big = true) { Repo.finishOnboarding() }
+        }
+    }
+}
+
+@Composable
+fun SettingsScreen(back: () -> Unit, push: (Route) -> Unit) {
+    val ctx = LocalContext.current
+    val mode by Repo.themeMode.collectAsStateWithLifecycle()
+    val notif by Repo.notifEnabled.collectAsStateWithLifecycle()
+    val qs by Repo.quietStart.collectAsStateWithLifecycle(); val qe by Repo.quietEnd.collectAsStateWithLifecycle()
+    val rh by Repo.refreshHours.collectAsStateWithLifecycle()
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        TopBack("Ayarlar", back)
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            SettingCard("Görünüm") {
+                Text("Tema", style = T.body.copy(fontWeight = FontWeight.SemiBold))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Pill("Sistem", mode == "system") { Repo.setTheme("system") }
+                    Pill("Koyu", mode == "dark") { Repo.setTheme("dark") }
+                    Pill("Açık", mode == "light") { Repo.setTheme("light") }
+                }
+            }
+            SettingCard("Bildirimler") {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) { Text("Yeni bölüm bildirimi", style = T.body.copy(fontWeight = FontWeight.SemiBold))
+                        Text("Takip ettiğin dizilerin bölümü internete düşünce", style = T.meta) }
+                    Switch(notif, { Repo.setNotif(it) }, colors = SwitchDefaults.colors(checkedTrackColor = C.coral))
+                }
+                Text("Sessiz saatler", style = T.body.copy(fontWeight = FontWeight.SemiBold))
+                Text("Bu saatler arasında bildirim gönderilmez.", style = T.meta)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    HourStepper("Başlangıç", qs) { Repo.setQuiet(it, if (qe < 0) 7 else qe) }
+                    HourStepper("Bitiş", qe) { Repo.setQuiet(if (qs < 0) 0 else qs, it) }
+                    if (qs >= 0 || qe >= 0) Text("Kapat", color = C.coral, fontSize = 13.sp, modifier = Modifier.clickable { Repo.setQuiet(-1, -1) })
+                }
+                Text("Arka planda kontrol sıklığı", style = T.body.copy(fontWeight = FontWeight.SemiBold))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(2 to "2 saat", 6 to "6 saat", 12 to "12 saat", 24 to "Günde 1").forEach { (h, l) ->
+                        Pill(l, rh == h) { Repo.setRefreshHours(h); RefreshWorker.schedule(ctx, h) }
+                    }
+                }
+            }
+            SettingCard("Uygulama") {
+                Row(Modifier.fillMaxWidth().clickable { push(Route.About) }, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Hakkında ve yasal bilgiler", style = T.body, modifier = Modifier.weight(1f)); Icon(Icons.Filled.ChevronRight, null, tint = C.muted)
+                }
+                val v = runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: ""
+                Text("Sürüm $v", style = T.meta)
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(title.uppercase(TR), style = T.meta.copy(color = C.coral, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp))
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(C.surface).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+    }
+}
+
+@Composable
+fun HourStepper(label: String, value: Int, onChange: (Int) -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, style = T.meta)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton({ onChange(((if (value < 0) 0 else value) + 23) % 24) }, Modifier.size(32.dp)) { Icon(Icons.Filled.Remove, "azalt", tint = C.ink) }
+            Text(if (value < 0) "--" else "%02d:00".format(value), Modifier.width(52.dp), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold, color = C.ink)
+            IconButton({ onChange(((if (value < 0) -1 else value) + 1) % 24) }, Modifier.size(32.dp)) { Icon(Icons.Filled.Add, "artır", tint = C.ink) }
+        }
+    }
+}
+
+@Composable
+fun AboutScreen(back: () -> Unit) {
+    val ctx = LocalContext.current
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        TopBack("Hakkında ve yasal", back)
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row { Text("Dizi ", style = T.brand.copy(fontSize = 26.sp), color = C.ink); Text("Cambazı", style = T.brand.copy(fontSize = 26.sp), color = C.coral) }
+            AboutBlock("Ne yapar?", "Türkiye'deki büyük kanalların (atv, Show TV, Star TV, Kanal D, NOW, TRT 1, Kanal 7) dizilerinin yeni bölümlerini tek ekranda toplar. Bölümleri kanalların kendi resmi sitelerinde ve resmi YouTube kanallarında bulur.")
+            AboutBlock("İçerik barındırmaz", "Bu uygulama hiçbir dizi dosyası saklamaz veya yayınlamaz. Yalnızca kanalların kendi yayınlarına bağlantı verir. Bölümlerin tüm hakları ilgili kanallara ve yapımcılara aittir. İzleme, kanalın resmi oynatıcısında ya da YouTube'da gerçekleşir.")
+            AboutBlock("Gizlilik", "Takip, beğeni, izleme işaretleri ve yorumların yalnızca senin telefonunda saklanır. Hiçbir veri bir sunucuya gönderilmez, hesap istenmez, reklam ve takip aracı yoktur. İnternet bağlantısı sadece kanal sitelerini, YouTube'u ve bölüm bilgisini (Vikipedi) okumak için kullanılır.")
+            AboutBlock("İzinler", "• İnternet: bölümleri ve bilgileri çekmek için.\n• Bildirim: takip ettiğin dizilerin yeni bölümünü haber vermek için. İstersen ayarlardan kapatabilirsin.")
+            AboutBlock("Kaynaklar", "Bölümler: ilgili kanalların resmi web siteleri ve resmi YouTube kanalları. Dizi özetleri ve afişler: Vikipedi (CC BY-SA).")
+            Pill("Projeyi GitHub'da aç") { WebPlayerActivity.openExternal(ctx, "https://github.com/borgatelefondeneme-arch/dizi-cambazi") }
+            val v = runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: ""
+            Text("Sürüm $v", style = T.meta)
+        }
+    }
+}
+
+@Composable
+fun AboutBlock(h: String, b: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(h, style = T.title.copy(fontSize = 17.sp))
+        Text(b, style = T.meta.copy(fontSize = 14.sp, lineHeight = 20.sp))
+    }
+}
+
+@Composable
+fun CalendarScreen(back: () -> Unit, push: (Route) -> Unit) {
+    val series by Repo.series.collectAsStateWithLifecycle()
+    val follows by Repo.follows.collectAsStateWithLifecycle()
+    Repo.episodes.collectAsStateWithLifecycle().value
+    val items = series.filter { it.key in follows && !it.ended }.mapNotNull { s -> nextAir(s)?.let { s to it } }.sortedBy { it.second }
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        item { TopBack("Takvim", back) }
+        item { Text("Takip ettiğin dizilerin yaklaşan bölümleri. Tahmini yayın günleri kanalların haftalık düzenine göredir.", style = T.meta.copy(fontSize = 13.sp), modifier = Modifier.padding(horizontal = 16.dp)) }
+        if (items.isEmpty()) item { Box(Modifier.padding(16.dp)) { Empty("Takvim boş", "Dizileri takip ettikçe yaklaşan bölümleri burada gün gün görürsün.", "Dizilere göz at") { push(Route.Tab("all")) } } }
+        items.groupBy { it.second }.forEach { (d, list) ->
+            item(key = "cal$d") { Text(whenLabel(d) + "  ·  " + "${d.dayOfMonth} ${d.month.getDisplayName(JTextStyle.FULL, TR)}", style = T.h2.copy(fontSize = 16.sp), modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) }
+            items(list, key = { "c" + it.first.key }) { (s, _) ->
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp).clip(RoundedCornerShape(14.dp)).background(C.surface).clickable { push(Route.Ser(s.key)) }.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Thumb(Repo.thumbOf(s.key), Modifier.width(96.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(9.dp))); Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) { Text(s.name, style = T.title.copy(fontSize = 16.sp)); ChannelTag(s.channel)
+                        Text("Saat ${s.time}", style = T.meta) }
+                    Repo.episodesOf(s.key).firstOrNull { it.online }?.let { Text("${it.num + 1}. bölüm", style = T.meta.copy(color = C.coral, fontWeight = FontWeight.SemiBold)) }
+                }
+            }
+        }
     }
 }
