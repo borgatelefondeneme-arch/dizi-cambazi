@@ -18,7 +18,7 @@ Hesapsız, herkese açık web sürümü — telefon ya da bilgisayar tarayıcıs
 Bu sürüm yerleşik bir dizi listesiyle gelir; takip/beğeni/izledim seçimleri tarayıcında saklanır. Video kanalın sitesinde ya da YouTube'da açılır. (Uygulama içi oynatma ve otomatik güncelleme yalnızca Android uygulamasında.)
 
 ## Kurulum
-- **Hazır APK (sürüm 2.0):** [DiziCambazi-v2.apk dosyasını indir](https://github.com/borgatelefondeneme-arch/dizi-cambazi/raw/main/apk/DiziCambazi-v2.apk), sonra telefonda aç. Android bilinmeyen kaynaktan yükleme izni isteyecek.
+- **Hazır APK (sürüm 2.1):** [DiziCambazi-v3.apk dosyasını indir](https://github.com/borgatelefondeneme-arch/dizi-cambazi/raw/main/apk/DiziCambazi-v3.apk), sonra telefonda aç. Yan yüklenen uygulamalar kendiliğinden güncellenmez; yeni sürümü indirip üstüne kurarsın (veriler korunur).
 - Eski sürüm (1.0) arşiv olarak durur: [DiziCambazi.apk](https://github.com/borgatelefondeneme-arch/dizi-cambazi/raw/main/apk/DiziCambazi.apk).
 - **Kaynaktan:** Projeyi Android Studio'da aç (File → Open) ve çalıştır. Gerekenler: Android SDK 35, JDK 17 ya da üstü.
 

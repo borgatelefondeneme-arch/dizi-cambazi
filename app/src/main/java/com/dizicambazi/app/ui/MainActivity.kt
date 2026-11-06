@@ -120,7 +120,7 @@ fun AppRoot(deepLink: MutableState<String?>) {
         if (top is Route.Tab) NavigationBar(containerColor = C.surface, tonalElevation = 0.dp) {
             listOf(Triple("home", "Ana sayfa", Icons.Outlined.Home), Triple("week", "Bu hafta", Icons.Outlined.CalendarMonth),
                 Triple("follow", "Takip", Icons.Outlined.NotificationsNone), Triple("likes", "Beğeniler", Icons.Outlined.FavoriteBorder),
-                Triple("all", "Diziler", Icons.Outlined.GridView)).forEach { (k, l, ic) ->
+                Triple("all", "Diziler", Icons.Outlined.GridView), Triple("nostalji", "Nostalji", Icons.Outlined.Theaters)).forEach { (k, l, ic) ->
                 NavigationBarItem(selected = tab == k, onClick = { stack.clear(); stack.add(Route.Tab(k)) }, icon = { Icon(ic, l) },
                     label = { Text(l, fontSize = 11.sp) }, colors = NavigationBarItemDefaults.colors(selectedIconColor = C.coral,
                         selectedTextColor = C.coral, indicatorColor = C.surface2, unselectedIconColor = C.muted, unselectedTextColor = C.muted))
@@ -302,7 +302,7 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
                         if (follows.isNotEmpty()) Text("Takvim", color = C.coral, fontWeight = FontWeight.SemiBold, modifier = Modifier.clickable { push(Route.Calendar) }) } }
                     if (follows.isEmpty()) item { Empty("Henüz takip ettiğin dizi yok", "Bir dizinin zil simgesine dokun. Yeni bölümü internete düşünce sana bildirim gelir.", "Dizileri keşfet") { push(Route.Tab("all")) } }
                     else {
-                        val list = all.filter { it.series in follows }.sortedWith(compareBy<Episode> { it.id in watched }.thenByDescending { it.airDate })
+                        val list = all.filter { it.series in follows }.sortedByDescending { it.airDate }
                         item { Text("${follows.size} dizi · ${list.count { it.online && it.id !in watched }} izlenmemiş bölüm", style = T.meta) }
                         items(list, key = { "t" + it.id }) { EpisodeCard(it, watched, follows, likes, open, play) }
                     }
@@ -312,11 +312,31 @@ fun TabScreen(tab: String, push: (Route) -> Unit, open: (Episode) -> Unit, play:
                     item { Text(if (tab == "likes") "Beğendiklerin" else "Tüm diziler", style = T.h2)
                         if (tab == "all") Text("${series.size} dizi · ${series.map { it.channel }.distinct().size} kanal · aradığın yoksa üstteki büyüteçle ekle", style = T.meta) }
                     if (tab == "all") item { ChannelChips(series.map { it.channel }, channel) { channel = it } }
-                    val list = src.filter { channel == "Tümü" || it.channel == channel }.sortedBy { it.name.lowercase(TR) }
+                    val list = src.filter { channel == "Tümü" || it.channel == channel }
+                        .sortedByDescending { Repo.episodesOf(it.key).firstOrNull { e -> e.online }?.airDate ?: "" }
                     if (list.isEmpty()) item { Empty("Beğendiğin dizi yok", "Kalp simgesine dokunarak sevdiğin dizileri burada ayrı tutabilirsin.", "Dizileri keşfet") { push(Route.Tab("all")) } }
                     items(list.chunked(2), key = { r -> r.joinToString { it.key } }) { row ->
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             row.forEach { s -> Poster(s, likes, follows, watched, Modifier.weight(1f)) { push(Route.Ser(s.key)) } }
+                            if (row.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+                "nostalji" -> {
+                    item { Text("Nostalji", style = T.h2); Text("Final yapmış klasik diziler. Kartına dokununca tüm bölümleri resmi YouTube kanalında açılır.", style = T.meta) }
+                    items(CLASSICS.chunked(2), key = { r -> r.joinToString { it.name } }) { row ->
+                        val ctx = LocalContext.current
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            row.forEach { c ->
+                                Box(Modifier.weight(1f).aspectRatio(16f / 10f).clip(RoundedCornerShape(16.dp)).clickable { WebPlayerActivity.openExternal(ctx, c.url) }) {
+                                    Thumb(c.thumb, Modifier.fillMaxSize()); Box(Modifier.fillMaxSize().background(C.scrim))
+                                    Column(Modifier.align(Alignment.BottomStart).padding(10.dp)) {
+                                        Text(c.name, style = T.title.copy(color = Color.White, fontSize = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                        ChannelTag(c.channel, Color.White)
+                                        Text("Tüm bölümler · YouTube", color = Color(0xE6FFFFFF), fontSize = 11.sp)
+                                    }
+                                }
+                            }
                             if (row.size == 1) Spacer(Modifier.weight(1f))
                         }
                     }
