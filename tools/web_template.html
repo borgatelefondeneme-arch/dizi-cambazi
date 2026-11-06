@@ -195,7 +195,8 @@ svg{display:block}
 .addcard b{font-family:var(--display);font-size:17px}
 /* tab bar */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--tab);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
-.tabbar nav{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tabbar nav{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+.tb{font-size:10.5px}
 .tb{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted);position:relative}
 .tb svg{width:24px;height:24px}
 .tb[aria-current="page"]{color:var(--coral)}
@@ -255,6 +256,7 @@ textarea{width:100%;min-height:84px;resize:vertical;border:1.5px solid var(--lin
   <button class="tb" data-v="follow" id="tb-follow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>Takip<span class="n" id="n-follow" hidden></span></button>
   <button class="tb" data-v="likes" id="tb-likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.7 3.4 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>Beğeniler</button>
   <button class="tb" data-v="all" id="tb-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>Diziler</button>
+  <button class="tb" data-v="nostalji" id="tb-nostalji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 7l3-4 4 4M10 7l3-4 4 4"/></svg>Nostalji</button>
 </nav></div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -293,6 +295,8 @@ const online=e=>e.status!=='pending';
 const isFresh=e=>online(e)&&daysAgo(e.airDate)<=3&&!S.me.watched[e.id];
 const sBy=k=>S.series.find(s=>s.key===k)||{};
 const epsOf=k=>S.episodes.filter(e=>e.series===k).sort((a,b)=>b.num-a.num);
+const lastAir=k=>{const e=epsOf(k).find(online)||epsOf(k)[0]; return e?e.airDate:'';};
+const CLASSICS=[{"name": "Diriliş: Ertuğrul", "channel": "TRT 1", "url": "https://www.youtube.com/results?search_query=Dirili%C5%9F%3A%20Ertu%C4%9Frul%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/3yjO6yfHLcU/hqdefault.jpg"}, {"name": "Eşkıya Dünyaya Hükümdar Olmaz", "channel": "atv", "url": "https://www.youtube.com/results?search_query=E%C5%9Fk%C4%B1ya%20D%C3%BCnyaya%20H%C3%BCk%C3%BCmdar%20Olmaz%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/0ocs4QH3Mcc/hqdefault.jpg"}, {"name": "Çukur", "channel": "Show TV", "url": "https://www.youtube.com/results?search_query=%C3%87ukur%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/029AvqTwTcI/hqdefault.jpg"}, {"name": "İçerde", "channel": "Show TV", "url": "https://www.youtube.com/results?search_query=%C4%B0%C3%A7erde%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/g9ye2PbZzaQ/hqdefault.jpg"}, {"name": "Karadayı", "channel": "atv", "url": "https://www.youtube.com/results?search_query=Karaday%C4%B1%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/7yULYt6F7oM/hqdefault.jpg"}, {"name": "Kara Para Aşk", "channel": "atv", "url": "https://www.youtube.com/results?search_query=Kara%20Para%20A%C5%9Fk%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/Qx8TgL-a7As/hqdefault.jpg"}, {"name": "Muhteşem Yüzyıl", "channel": "Star TV", "url": "https://www.youtube.com/results?search_query=Muhte%C5%9Fem%20Y%C3%BCzy%C4%B1l%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/m-RP43JXGM0/hqdefault.jpg"}, {"name": "Leyla ile Mecnun", "channel": "TRT 1", "url": "https://www.youtube.com/results?search_query=Leyla%20ile%20Mecnun%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/yK3dj4v3t6k/hqdefault.jpg"}, {"name": "Seksenler", "channel": "TRT 1", "url": "https://www.youtube.com/results?search_query=Seksenler%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/aNZEqL2cm58/hqdefault.jpg"}, {"name": "Kurtlar Vadisi Pusu", "channel": "Show TV", "url": "https://www.youtube.com/results?search_query=Kurtlar%20Vadisi%20Pusu%20b%C3%B6l%C3%BCm", "thumb": "https://i.ytimg.com/vi/GX6XL8YA-4A/hqdefault.jpg"}];
 const cCount=id=>S.comments.filter(c=>c.ep===id).length;
 const thumbOf=k=>{const e=epsOf(k).find(online)||epsOf(k)[0]; return e?e.thumb:'';};
 const chF=l=>S.channel==='Tümü'?l:l.filter(x=>x.channel===S.channel);
@@ -408,21 +412,29 @@ function vWeek(){
 function vFollow(){
   const keys=Object.keys(S.me.follows);
   if(!keys.length) return `<section class="sec">${empty('Henüz takip ettiğin dizi yok','Bir dizinin zil simgesine dokun. Takip ettiğin dizilerin yeni bölümleri burada toplanır.','<button class="btn" data-v="all">Dizileri keşfet</button>')}</section>`;
-  const list=S.episodes.filter(e=>S.me.follows[e.series]).sort((a,b)=>(!!S.me.watched[a.id])-(!!S.me.watched[b.id])||b.airDate.localeCompare(a.airDate));
+  const list=S.episodes.filter(e=>S.me.follows[e.series]).sort((a,b)=>b.airDate.localeCompare(a.airDate)||b.id.localeCompare(a.id));
   const unseen=list.filter(e=>online(e)&&!S.me.watched[e.id]);
   return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Takip ettiklerin</h2></div><p class="sub">${keys.length} dizi · ${unseen.length} izlenmemiş bölüm</p>
     <div class="stories" style="padding-top:4px">${keys.map(k=>sBy(k)).filter(s=>s.key).map(s=>`<button class="story" data-series="${esc(s.key)}"><span class="av">${thumbOf(s.key)?`<img src="${esc(thumbOf(s.key))}" alt="">`:''}</span><span>${esc(s.name)}</span></button>`).join('')}</div>
     <div class="feed" style="margin-top:12px">${list.map(epCard).join('')}</div></section>`;
 }
 function vLikes(){
-  const list=S.series.filter(s=>S.me.likes[s.key]);
+  const list=S.series.filter(s=>S.me.likes[s.key]).sort((a,b)=>lastAir(b.key).localeCompare(lastAir(a.key)));
   return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Beğendiklerin</h2></div>${list.length?`<div class="grid">${list.map(poster).join('')}</div>`:empty('Beğendiğin dizi yok','Kalp simgesine dokunarak sevdiğin dizileri burada ayrı tutabilirsin.','<button class="btn" data-v="all">Dizileri keşfet</button>')}</section>`;
 }
 function vAll(){
-  const list=chF(S.series.slice()).sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+  const list=chF(S.series.slice()).sort((a,b)=>lastAir(b.key).localeCompare(lastAir(a.key))||a.name.localeCompare(b.name,'tr'));
   return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Tüm diziler</h2></div><p class="sub">${S.series.length} dizi, ${new Set(S.series.map(s=>s.channel)).size} kanal</p>${chips(S.series)}<div class="grid">${list.map(poster).join('')}</div></section>`;
 }
 
+function vNostalji(){
+  return `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>Nostalji</h2></div>
+  <p class="sub">Final yapmış klasik diziler. Tüm bölümleri resmi YouTube kanallarında; karta dokununca orada açılır.</p>
+  <div class="grid">${CLASSICS.map(c=>`<a class="poster" href="${esc(c.url)}" target="_blank" rel="noopener" style="aspect-ratio:16/10">
+    <img src="${esc(c.thumb)}" alt="" loading="lazy"><div style="position:absolute;inset:0;background:var(--scrim)"></div>
+    <div class="pc"><h3>${esc(c.name)}</h3>${chTag(c.channel).replace('class="ch"','class="ch" style="color:#fff;--cc:var('+(CC[c.channel]||'--muted')+')"')}
+    <span class="pm" style="color:#fff">Tüm bölümler · YouTube</span></div></a>`).join('')}</div></section>`;
+}
 function render(){
   document.querySelectorAll('.tb').forEach(t=>t.toggleAttribute('aria-current',false)||t.dataset.v===S.view&&t.setAttribute('aria-current','page'));
   const fUnseen=S.episodes.filter(e=>S.me.follows[e.series]&&online(e)&&!S.me.watched[e.id]).length;
@@ -432,7 +444,7 @@ function render(){
   const m=$('#main');
   if(!S.loaded){ if(S.dbOk===false) m.innerHTML=`<section class="sec">${empty('Bölümler yüklenemedi','Liste Claude hesabındaki kayıtlardan geliyor. Sayfayı claude.ai üzerinde giriş yapmış olarak aç.')}</section>`; return; }
   if(!S.episodes.length){ m.innerHTML=`<section class="sec">${empty('Henüz bölüm yok','Yeni bölümler eklendiğinde burada kapak görselleriyle listelenecek.')}</section>`; return; }
-  m.innerHTML=({home:vHome,week:vWeek,follow:vFollow,likes:vLikes,all:vAll}[S.view]||vHome)();
+  m.innerHTML=({home:vHome,week:vWeek,follow:vFollow,likes:vLikes,all:vAll,nostalji:vNostalji}[S.view]||vHome)();
   const u=S.meta&&S.meta.updatedAt;
   $('#foot').innerHTML=`${u?`Liste ${new Date(u).toLocaleString('tr-TR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})} tarihinde güncellendi.<br>`:''}Bölümler kanalların kendi sitelerinde ya da resmi YouTube kanallarında açılır.`;
   if(S.open) renderSheet();
